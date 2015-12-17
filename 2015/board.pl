@@ -20,29 +20,29 @@
 %
 % Fakten zur Repräsentation benutzter Felder in der
 % Ausgangsstellung: feld(Zeile+Spalte,Farbe)
-feld(a4,[w]).
-feld(a6,[w]).
-feld(b3,[w]).
-feld(b5,[w]).
-feld(b7,[w]).
-feld(c2,[w]).
-feld(c4,[w]).
-feld(c6,[w]).
-feld(c8,[w]).
+feld(a4,[white]).
+feld(a6,[white]).
+feld(b3,[white]).
+feld(b5,[white]).
+feld(b7,[white]).
+feld(c2,[white]).
+feld(c4,[white]).
+feld(c6,[white]).
+feld(c8,[white]).
 feld(d1,[]). %
 feld(d3,[]). % diese fünf Felder
 feld(d5,[]). %
 feld(d7,[]). % sind anfangs unbesetzt
 feld(d9,[]). %
-feld(e2,[s]).
-feld(e4,[s]).
-feld(e6,[s]).
-feld(e8,[s]).
-feld(f3,[s]).
-feld(f5,[s]).
-feld(f7,[s]).
-feld(g4,[s]).
-feld(g6,[s]).
+feld(e2,[black]).
+feld(e4,[black]).
+feld(e6,[black]).
+feld(e8,[black]).
+feld(f3,[black]).
+feld(f5,[black]).
+feld(f7,[black]).
+feld(g4,[black]).
+feld(g6,[black]).
         
 % Felder des Brettes während eines Spiels
 :- dynamic       % brett(Zeile+Spalte,Farbe)
