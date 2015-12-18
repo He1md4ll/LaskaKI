@@ -1,11 +1,11 @@
+﻿:- dynamic
+        possibleMove/2.
 :- dynamic
-	possibleMove/2.
+        possibleJump/3.
 :- dynamic
-	possibleJump/3.
-:- dynamic
-	currentColor/1.
-	
-currentColor(black).	
+        currentColor/1.
+        
+currentColor(black).    
 currentColor(white).
 
 uiNameColor(white, w).
@@ -70,6 +70,13 @@ move(f5,g4).
 move(f5,g6).
 move(f7,g6).
 
+move(Field,TargetField,white):-
+     move(Field,TargetField).
+
+move(Field,TargetField,black):-
+     move(TargetField, Field).
+
+
 % Possible jumps for white (from -- over -- to)
 jump(a4,b3,c2).
 jump(a4,b5,c6).
@@ -97,3 +104,9 @@ jump(e2,f3,g4).
 jump(e4,f5,g6).
 jump(e6,f5,g4).
 jump(e8,f7,g6).
+
+jump(Field, OverField, TargetField,white):-
+     jump(Field, OverField,TargetField).
+
+jump(Field, OverField, TargetField,black):-
+     jump(TargetField, OverField, Field).

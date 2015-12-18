@@ -1,4 +1,4 @@
-﻿%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Beispiel einer Ausgaberoutine für UM-L´
 % -- das modifizierte Laska-Spiel
@@ -20,9 +20,6 @@
 %
 % Fakten zur Repräsentation benutzter Felder in der
 % Ausgangsstellung: feld(Zeile+Spalte,Farbe)
-:- dynamic       % brett(Zeile+Spalte,Farbe)
-        feld/2.
-        
 feld(a4,[white]).
 feld(a6,[white]).
 feld(b3,[white]).
