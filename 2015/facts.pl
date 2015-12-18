@@ -5,12 +5,32 @@
 :- dynamic
 	currentColor/1.
 	
-	
+currentColor(black).	
 currentColor(white).
-currentColor(black).
 
 uiNameColor(white, w).
 uiNameColor(black, s).
+
+relatedColor(white, red).
+relatedColor(black, green).
+relatedColor(green, black).
+relatedColor(red, white).
+
+opponent(white,black).
+opponent(white,red).
+opponent(black,white).
+opponent(black,green).
+
+degrade(green,white).
+degrade(red,black).
+degrade(X,X).     % degradiere nicht
+
+% Felder, auf denen gewöhnliche Steine befördert werden
+promote(a4,black,red).
+promote(a6,black,red).
+promote(g4,white,green).
+promote(g6,white,green).
+promote(_,X,X).    % befördere nicht
 
 % Possible moves for white (from -- to)
 move(a4,b3).

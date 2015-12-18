@@ -4,60 +4,77 @@
 %:- ['evaluate.pl'].
 :- ['facts.pl'].
 %:- ['gamelogic.pl'].
+:- ['draftCalculator.pl'].
 
 start :-
 	currentColor(Color),
 	writeAllPossibleDraftsFor(Color),
-	checkIsWinner(Color),
-	writeTurnFor(Color),
-	applyTurn,
+	\+checkIsWinner(Color),
+	displayPossibleDrafts,
+	getTurnFor(Color, Field, TargetField),
+	applyTurn(Field, TargetField),
 	resetMovesAndJumps,
-	changeCurrentColor(Color),
-	fail.
+	changeCurrentColor(Color)
+	%fail
+	,!.
 	
+checkIsWinner(white) :- \+current_predicate(possibleJump/3),\+current_predicate(possibleMove/2),write('Black wins.'),abort.
+checkIsWinner(black) :- \+current_predicate(possibleJump/3),\+current_predicate(possibleMove/2),write('White wins.'),abort.
+% checkIsWinner(_).
 
-
-
-writeAllPossibleDraftsFor(Color) :-
-	allSoldierDrafts(Color),
-	checkZugzwang.
-	
-	
-allSoldierDrafts(Color) :-
-	feld(Field, [Color]),		% Get next figure position
-	move(Field, TargetField),		% Get next move
-	% IF
-	(testMove(TargetField) ->
-	% Then
-	assertz(possibleMove(Field, TargetField))
+displayPossibleDrafts :-
+	(current_predicate(possibleJump/3), possibleJump(X,_,Y)
 	;
-	% Else If
-	\+feld(TargetField, [Color]),	% Not possible to jump over own figures
-	testJump(Field, TargetField, JumpTargetField) ->
-	% Then
-	assertz(possibleJump(Field, TargetField, JumpTargetField))
-	),
-	fail.
-allSoldierDrafts(_).
+	current_predicate(possibleMove/2), possibleMove(X,Y)),
+	write(X),write(Y),nl, fail.
+displayPossibleDrafts.
 
-allGeneralDrafts(Color).
-		
+getTurnFor(Color, Field, TargetField) :-
+	write(Color), write(' am Zug:'),
+	read(Draft),
+	sub_atom(Draft,0,2,_,Field),
+	sub_atom(Draft,2,2,_,TargetField).
+	
+applyTurnFor(Color, Field, TargetField) :-
+	(isJump ->
+	possibleJump(Field,M,TargetField),
+    brett(M,[Oppo|Jailed]),
+    opponent(Color,Oppo),
+    doJump(Field,M,Oppo,Jailed,TargetField)
+    ;
+    isMove(Field,TargetField),
+    possibleMove(Field,TargetField),
+    doMove(Field,TargetField)
+    ).
+	
+isJump(Field, TargetField) :-
+	current_predicate(possibleJump/3), 
+	possibleJump(Field, _, TargetField), !.
+	
+isMove(Field, TargetField) :-
+	current_predicate(possibleMove/2),
+	possibleMove(Field, TargetField), !.
+	
+doJump(X,M,O,J,Y) :-
+        retract(brett(X,[Kopf|S])),
+        assertz(brett(X,[])),
+        retract(brett(M,_)),
+        assertz(brett(M,J)),
+        retract(brett(Y,_)),
+        promote(Y,Kopf,Offz),
+        degrade(O,G),
+        append([Offz|S],[G],New),
+        assertz(brett(Y,New)).
+doMove(X,Y) :-
+        retract(brett(X,[Kopf|S])),
+        assertz(brett(X,[])),
+        retract(brett(Y,_)),
+        promote(Y,Kopf,Offz),
+        assertz(brett(Y,[Offz|S])).	
 
-testMove(TargetField) :-
-	feld(TargetField, []).
-	
-testJump(Field, TargetField, JumpTargetField) :-
-	jump(Field, TargetField, JumpTargetField),
-	isFieldEmpty(JumpTargetField).
-	
-checkZugzwang :-
-	\+possibleJump(_,_,_);
+resetMovesAndJumps :-
+	abolish(possibleJump/3),
 	abolish(possibleMove/2).
-	
-	
-checkIsWinner(white) :- \+possibleJump(_,[]),\+possibleMove(_,[]),write('Black wins.'),abort.
-checkIsWinner(black) :- \+possibleJump(_,[]),\+possibleMove(_,[]),write('White wins.'),abort.
-% checkIsWinner(_).	
 
 changeCurrentColor(Color) :-
 	retract(currentColor(Color)),
