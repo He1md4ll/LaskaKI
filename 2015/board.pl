@@ -125,7 +125,7 @@ schreibeZellen(Zeile,[x|T]) :- % nicht genutztes "Zwischenfeld"
     schreibeZellen(Zeile,T).
 schreibeZellen(Zeile,[Spalte|T]) :- % genutztes Spielfeld
         atom_concat(Zeile,Spalte,ZeileSpalte),
-    brett(ZeileSpalte,Stapel), % was liegt auf dem Feld?
+    feld(ZeileSpalte,Stapel), % was liegt auf dem Feld?
     schreibeFeld(Stapel),       % Säule ausgeben
     schreibeZellen(Zeile,T).
     
@@ -134,7 +134,8 @@ schreibeFeld([]) :- % unbesetztes Feld (anfangs sind das die Felder der 5er-Reih
 schreibeFeld([Kopf|Rest]) :-   % besetztes Feld
     kopfsymbol(Kopf,Symb),
     write(Symb),      % der Kopf wird als Großbuchstabe ausgegeben, s.u.
-    concat_atom(Rest,Gefangene),
+    colorToUiNames(Rest,UiRest),
+    concat_atom(UiRest,Gefangene),
     write(Gefangene), % alle Steine unter dem Kopf
     atom_length(Gefangene,Len),
     Leer is 8 - Len,
@@ -143,10 +144,26 @@ schreibeFeld([Kopf|Rest]) :-   % besetztes Feld
     write(' ').       % Abgrenzung zum Nachbarfeld
 
 % Umwandlung in Großbuchstaben per Fakten
-kopfsymbol(w,'W').
-kopfsymbol(s,'S').
-kopfsymbol(g,'G').
-kopfsymbol(r,'R').
+kopfsymbol(white,'W').
+kopfsymbol(black,'S').
+kopfsymbol(green,'G').
+kopfsymbol(red,'R').
+
+   
+uiSymbol(white,'w').
+uiSymbol(black,'s').
+uiSymbol(green,'g').
+uiSymbol(red,'r').
+
+colorToUiNames(Rest,UiRest):-
+   colorToUiNames(Rest,[],UiRest).
+   
+colorToUiNames([Head|Tail],Li,UiRest):-
+   uiSymbol(Head,UiHead),
+   append(Li,[UiHead],LiBack),
+   colorToUiNames(Tail,LiBack,UiRest).
+   
+colorToUiNames([],UiRest,UiRest).
 
 % Leerzeichen zum Auffüllen in gleicher Weise
 fuellen(1,' ').
