@@ -6,7 +6,11 @@
 %:- ['gamelogic.pl'].
 :- ['draftCalculator.pl'].
 
+currentTurn(1).
+currentTurn(X) :- currentTurn(Y), X is Y+1.
+
 start :-
+        currentTurn(N),write('-> '),write(N),nl,
         currentColor(Color),
         writeAllPossibleDraftsFor(Color),
         \+checkIsWinner(Color),
@@ -39,11 +43,11 @@ applyTurnFor(Color, Field, TargetField) :-
         possibleJump(Field,M,TargetField),
         feld(M,[Oppo|Jailed]),
         opponent(Color,Oppo),
-        doJump(Field,M,Oppo,Jailed,TargetField)
+        doJump(Field,M,Oppo,Jailed,TargetField),!
         ;
         isMove(Field,TargetField),
         possibleMove(Field,TargetField),
-        doMove(Field,TargetField)
+        doMove(Field,TargetField) ,!
         ).
         
 isJump(Field, TargetField) :-
