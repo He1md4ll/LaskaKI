@@ -12,6 +12,7 @@ currentTurn(X) :- currentTurn(Y), X is Y+1.
 start :-
         currentTurn(N),write('-> '),write(N),nl,
         currentColor(Color),
+        schreibeBrett,
         writeAllPossibleDraftsFor(Color),
         \+checkIsWinner(Color),
         displayPossibleDrafts,
