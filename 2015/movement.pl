@@ -4,12 +4,6 @@ displayPossibleDrafts :-
         current_predicate(possibleMove/2), possibleMove(X,Y)),
         write(X),write(Y),nl, fail.
 displayPossibleDrafts.
-
-getTurnFor(Color, Field, TargetField) :-
-        write(Color), write(' am Zug:'),
-        read(Draft),
-        sub_atom(Draft,0,2,_,Field),
-        sub_atom(Draft,2,2,_,TargetField).
         
 applyTurnFor(Color, Field, TargetField) :-
         (isJump(Field, TargetField) ->
