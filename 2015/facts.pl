@@ -11,10 +11,10 @@ currentColor(white).
 uiNameColor(white, w).
 uiNameColor(black, s).
 
-relatedColor(white, red).
-relatedColor(black, green).
-relatedColor(green, black).
-relatedColor(red, white).
+relatedColor(white, green).
+relatedColor(black, red).
+relatedColor(red, black).
+relatedColor(green, white).
 
 opponent(white,black).
 opponent(white,red).
@@ -75,7 +75,18 @@ move(Field,TargetField,white):-
 
 move(Field,TargetField,black):-
      move(TargetField, Field).
-
+     
+move(Field,TargetField,green):-
+     move(Field,TargetField, white).   
+  
+move(Field,TargetField,green):-
+     move(Field,TargetField, black). 
+ 
+move(Field,TargetField,red):-
+     move(Field,TargetField, white).   
+  
+move(Field,TargetField,red):-
+     move(Field,TargetField, black).             
 
 % Possible jumps for white (from -- over -- to)
 jump(a4,b3,c2).
@@ -110,3 +121,15 @@ jump(Field, OverField, TargetField,white):-
 
 jump(Field, OverField, TargetField,black):-
      jump(TargetField, OverField, Field).
+     
+jump(Field, OverField, TargetField,green):-
+     jump(Field, OverField, TargetField,white).
+     
+jump(Field, OverField, TargetField,green):-
+     jump(Field, OverField, TargetField,black).     
+     
+jump(Field, OverField, TargetField,red):-
+     jump(Field, OverField, TargetField,white).
+  
+jump(Field, OverField, TargetField,red):-
+     jump(Field, OverField, TargetField,black).              
