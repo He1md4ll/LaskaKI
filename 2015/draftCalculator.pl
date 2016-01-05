@@ -5,7 +5,7 @@ writeAllPossibleDraftsFor(Color) :-
         checkZugzwang, !.
         
 allSoldierDrafts(Color) :-
-        feld(Field, [Color|_]),           % Get next figure position
+        board(Field, [Color|_]),           % Get next figure position
         move(Field, TargetField, Color),       % Get next move
         \+testAndSaveMove(Field, TargetField),
         jump(Field, TargetField, JumpTargetField, Color),
@@ -19,13 +19,13 @@ testAndSaveMove(Field, TargetField) :-
         
 testAndSaveJump(Color, GeneralColor, Field, TargetField, JumpTargetField) :-
         relatedColor(Color, GeneralColor),
-        \+feld(TargetField, [Color|_]),   % Not possible to jump over own figures
-        \+feld(TargetField, [GeneralColor|_]),
+        \+board(TargetField, [Color|_]),   % Not possible to jump over own figures
+        \+board(TargetField, [GeneralColor|_]),
         isFieldEmpty(JumpTargetField),
         assertz(possibleJump(Field, TargetField, JumpTargetField)).
 
 isFieldEmpty(Field) :-
-        feld(Field, []).
+        board(Field, []).
         
 checkZugzwang :-
         hasPossibleJumps,

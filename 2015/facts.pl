@@ -1,9 +1,11 @@
-﻿:- dynamic
+:- dynamic
         possibleMove/2.
 :- dynamic
         possibleJump/3.
 :- dynamic
         currentColor/1.
+:- dynamic
+        aiColor/1.        
         
 currentColor(black).    
 currentColor(white).
@@ -20,6 +22,9 @@ opponent(white,black).
 opponent(white,red).
 opponent(black,white).
 opponent(black,green).
+
+enemy(white, black).
+enemy(black, white).
 
 degrade(green,white).
 degrade(red,black).

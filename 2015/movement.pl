@@ -5,10 +5,11 @@ displayPossibleDrafts :-
         write(X),write(Y),nl, fail.
 displayPossibleDrafts.
         
-applyTurnFor(Color, Field, TargetField) :-
+applyTurn(Field, TargetField) :-
+		board(Field, [Color, _]),
         (isJump(Field, TargetField) ->
         possibleJump(Field,M,TargetField),
-        feld(M,[Oppo|Jailed]),
+        board(M,[Oppo|Jailed]),
         opponent(Color,Oppo),
         doJump(Field,M,Oppo,Jailed,TargetField),!
         ;
@@ -26,21 +27,21 @@ isMove(Field, TargetField) :-
         possibleMove(Field, TargetField), !.
         
 doJump(X,M,O,J,Y) :-
-        retract(feld(X,[Kopf|S])),
-        assertz(feld(X,[])),
-        retract(feld(M,_)),
-        assertz(feld(M,J)),
-        retract(feld(Y,_)),
+        retract(board(X,[Kopf|S])),
+        assertz(board(X,[])),
+        retract(board(M,_)),
+        assertz(board(M,J)),
+        retract(board(Y,_)),
         promote(Y,Kopf,Offz),
         degrade(O,G),
         append([Offz|S],[G],New),
-        assertz(feld(Y,New)).
+        assertz(board(Y,New)).
 doMove(X,Y) :-
-        retract(feld(X,[Kopf|S])),
-        assertz(feld(X,[])),
-        retract(feld(Y,_)),
+        retract(board(X,[Kopf|S])),
+        assertz(board(X,[])),
+        retract(board(Y,_)),
         promote(Y,Kopf,Offz),
-        assertz(feld(Y,[Offz|S])).
+        assertz(board(Y,[Offz|S])).
 
 resetMovesAndJumps :-
         abolish(possibleJump/3),

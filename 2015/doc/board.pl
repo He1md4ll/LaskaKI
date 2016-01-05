@@ -19,37 +19,37 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Fakten zur Repräsentation benutzter Felder in der
-% Ausgangsstellung: feld(Zeile+Spalte,Farbe)
-feld(a4,[w]).
-feld(a6,[w]).
-feld(b3,[w]).
-feld(b5,[w]).
-feld(b7,[w]).
-feld(c2,[w]).
-feld(c4,[w]).
-feld(c6,[w]).
-feld(c8,[w]).
-feld(d1,[]). %
-feld(d3,[]). % diese fünf Felder
-feld(d5,[]). %
-feld(d7,[]). % sind anfangs unbesetzt
-feld(d9,[]). %
-feld(e2,[s]).
-feld(e4,[s]).
-feld(e6,[s]).
-feld(e8,[s]).
-feld(f3,[s]).
-feld(f5,[s]).
-feld(f7,[s]).
-feld(g4,[s]).
-feld(g6,[s]).
+% Ausgangsstellung: board(Zeile+Spalte,Farbe)
+board(a4,[w]).
+board(a6,[w]).
+board(b3,[w]).
+board(b5,[w]).
+board(b7,[w]).
+board(c2,[w]).
+board(c4,[w]).
+board(c6,[w]).
+board(c8,[w]).
+board(d1,[]). %
+board(d3,[]). % diese fünf Felder
+board(d5,[]). %
+board(d7,[]). % sind anfangs unbesetzt
+board(d9,[]). %
+board(e2,[s]).
+board(e4,[s]).
+board(e6,[s]).
+board(e8,[s]).
+board(f3,[s]).
+board(f5,[s]).
+board(f7,[s]).
+board(g4,[s]).
+board(g6,[s]).
         
 % Felder des Brettes während eines Spiels
 :- dynamic       % brett(Zeile+Spalte,Farbe)
         brett/2.
 initBrett :-
         abolish(brett,2),
-        feld(ZS,F),
+        board(ZS,F),
         asserta(brett(ZS,F)),
         fail.
 initBrett.
@@ -122,12 +122,12 @@ schreibeZellen(Zeile,[x|T]) :- % nicht genutztes "Zwischenfeld"
 schreibeZellen(Zeile,[Spalte|T]) :- % genutztes Spielfeld
         atom_concat(Zeile,Spalte,ZeileSpalte),
 	brett(ZeileSpalte,Stapel), % was liegt auf dem Feld?
-	schreibeFeld(Stapel),       % Säule ausgeben
+	schreibeboard(Stapel),       % Säule ausgeben
 	schreibeZellen(Zeile,T).
 	
-schreibeFeld([]) :- % unbesetztes Feld (anfangs sind das die Felder der 5er-Reihe)
+schreibeboard([]) :- % unbesetztes Feld (anfangs sind das die Felder der 5er-Reihe)
 	write('         |').
-schreibeFeld([Kopf|Rest]) :-   % besetztes Feld
+schreibeboard([Kopf|Rest]) :-   % besetztes Feld
 	kopfsymbol(Kopf,Symb),
 	write(Symb),      % der Kopf wird als Großbuchstabe ausgegeben, s.u.
 	concat_atom(Rest,Gefangene),

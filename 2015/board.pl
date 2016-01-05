@@ -1,58 +1,39 @@
-﻿%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Beispiel einer Ausgaberoutine für UM-L´
-% -- das modifizierte Laska-Spiel
-%
-% U. Meyer, Okt. 2008, Feb. 2015
-%
-%
-% Angenommen wird ein Spiel auf einem Schachbrett-ähnlichen,
-% rautenartigen Spielfeld, jedoch mit 9 x 7 Feldern
-%
-% Wie im Laska-Spiel wird beim Schachbrett
-% auf den Feldern einer Farbe gespielt, die
-% Felder der anderen Farbe gehören nicht zum Spielfeld.
-%
-% Demonstriert werden auch verschiedene Programmiertechniken
-% in Prolog.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Fakten zur Repräsentation benutzter Felder in der
-% Ausgangsstellung: feld(Zeile+Spalte,Farbe)
-:- dynamic       % brett(Zeile+Spalte,Farbe)
-        feld/2.
+:- dynamic
+	board/2.
+	
+:- dynamic
+	backupBoard/2.	
         
-feld(a4,[white]).
-feld(a6,[white]).
-feld(b3,[white]).
-feld(b5,[white]).
-feld(b7,[white]).
-feld(c2,[white]).
-feld(c4,[white]).
-feld(c6,[white]).
-feld(c8,[white]).
-feld(d1,[]). %
-feld(d3,[]). % diese fünf Felder
-feld(d5,[]). %
-feld(d7,[]). % sind anfangs unbesetzt
-feld(d9,[]). %
-feld(e2,[black]).
-feld(e4,[black]).
-feld(e6,[black]).
-feld(e8,[black]).
-feld(f3,[black]).
-feld(f5,[black]).
-feld(f7,[black]).
-feld(g4,[black]).
-feld(g6,[black]).
+board(a4,[white]).
+board(a6,[white]).
+board(b3,[white]).
+board(b5,[white]).
+board(b7,[white]).
+board(c2,[white]).
+board(c4,[white]).
+board(c6,[white]).
+board(c8,[white]).
+board(d1,[]). %
+board(d3,[]). % diese fünf Felder
+board(d5,[]). %
+board(d7,[]). % sind anfangs unbesetzt
+board(d9,[]). %
+board(e2,[black]).
+board(e4,[black]).
+board(e6,[black]).
+board(e8,[black]).
+board(f3,[black]).
+board(f5,[black]).
+board(f7,[black]).
+board(g4,[black]).
+board(g6,[black]).
         
 % Felder des Brettes während eines Spiels
 :- dynamic       % brett(Zeile+Spalte,Farbe)
         brett/2.
 initBrett :-
         abolish(brett,2),
-        feld(ZS,F),
+        board(ZS,F),
         asserta(brett(ZS,F)),
         fail.
 initBrett.
@@ -125,13 +106,13 @@ schreibeZellen(Zeile,[x|T]) :- % nicht genutztes "Zwischenfeld"
     schreibeZellen(Zeile,T).
 schreibeZellen(Zeile,[Spalte|T]) :- % genutztes Spielfeld
         atom_concat(Zeile,Spalte,ZeileSpalte),
-    feld(ZeileSpalte,Stapel), % was liegt auf dem Feld?
-    schreibeFeld(Stapel),       % Säule ausgeben
+    board(ZeileSpalte,Stapel), % was liegt auf dem Feld?
+    schreibeboard(Stapel),       % Säule ausgeben
     schreibeZellen(Zeile,T).
     
-schreibeFeld([]) :- % unbesetztes Feld (anfangs sind das die Felder der 5er-Reihe)
+schreibeboard([]) :- % unbesetztes Feld (anfangs sind das die Felder der 5er-Reihe)
     write('          ').
-schreibeFeld([Kopf|Rest]) :-   % besetztes Feld
+schreibeboard([Kopf|Rest]) :-   % besetztes Feld
     kopfsymbol(Kopf,Symb),
     write(Symb),      % der Kopf wird als Großbuchstabe ausgegeben, s.u.
     colorToUiNames(Rest,UiRest),
