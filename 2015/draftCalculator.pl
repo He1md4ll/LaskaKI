@@ -1,33 +1,34 @@
-writeAllPossibleDraftsFor(Color) :-
-        allSoldierDrafts(Color),
+writeAllPossibleDraftsFor(Color, MoveOrder) :-
+        allSoldierDrafts(Color, MoveOrder),
         relatedColor(Color, GeneralColor),
-        allSoldierDrafts(GeneralColor),
-        checkZugzwang, !.
+        allSoldierDrafts(GeneralColor, MoveOrder),
+        checkZugzwang(MoveOrder), !.        
         
-allSoldierDrafts(Color) :-
+allSoldierDrafts(Color, MoveOrder) :-
         board(Field, [Color|_]),           % Get next figure position
         move(Field, TargetField, Color),       % Get next move
-        \+testAndSaveMove(Field, TargetField),
+        \+testAndSaveMove(MoveOrder, Field, TargetField),
         jump(Field, TargetField, JumpTargetField, Color),
-        testAndSaveJump(Color, _, Field, TargetField, JumpTargetField),
+        testAndSaveJump(Color, MoveOrder, _, Field, TargetField, JumpTargetField),
         fail.
-allSoldierDrafts(_).
+allSoldierDrafts(_, _).
 
-testAndSaveMove(Field, TargetField) :-
+testAndSaveMove(MoveOrder, Field, TargetField) :-
         isFieldEmpty(TargetField),
-        assertz(possibleMove(Field, TargetField)).
+        assertz(possibleMove(MoveOrder, Field, TargetField)).
         
-testAndSaveJump(Color, GeneralColor, Field, TargetField, JumpTargetField) :-
+testAndSaveJump(Color, MoveOrder, GeneralColor, Field, TargetField, JumpTargetField) :-
         relatedColor(Color, GeneralColor),
         \+board(TargetField, [Color|_]),   % Not possible to jump over own figures
         \+board(TargetField, [GeneralColor|_]),
         isFieldEmpty(JumpTargetField),
-        assertz(possibleJump(Field, TargetField, JumpTargetField)).
+        assertz(possibleJump(MoveOrder, Field, TargetField, JumpTargetField)).
 
 isFieldEmpty(Field) :-
         board(Field, []).
         
-checkZugzwang :-
-        hasPossibleJumps,
-        abolish(possibleMove/2).
-checkZugzwang.  
+checkZugzwang(MoveOrder) :-
+        hasPossibleJumps(MoveOrder),
+        retract(possibleMove(MoveOrder,_,_)),
+        checkZugzwang(MoveOrder).
+checkZugzwang(_).  

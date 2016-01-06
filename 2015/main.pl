@@ -15,7 +15,7 @@ start(AiColor) :-
         currentTurn(N),write('-> '),write(N),nl,
         currentColor(Color),
         schreibeBrett,
-        writeAllPossibleDraftsFor(Color),
+        writeAllPossibleDraftsFor(Color,[]),
         \+checkIsWinner(Color),
         displayPossibleDrafts,
         getTurnFor(Color, Field, TargetField),
@@ -24,8 +24,8 @@ start(AiColor) :-
         changeCurrentColor(Color),
         fail.
         
-checkIsWinner(white) :- \+hasPossibleJumps,\+hasPossibleMoves,write('Black wins.'),abort.
-checkIsWinner(black) :- \+hasPossibleJumps,\+hasPossibleMoves,write('White wins.'),abort.
+checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),abort.
+checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),abort.
 
 getTurnFor(Color, Field, TargetField) :-
 		aiColor(AiColor),

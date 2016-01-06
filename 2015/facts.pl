@@ -1,14 +1,16 @@
 :- dynamic
-        possibleMove/2.
+        possibleMove/3.        
 :- dynamic
-        possibleJump/3.
+        possibleJump/4.        
 :- dynamic
         currentColor/1.
 :- dynamic
-        aiColor/1.        
+        aiColor/1.
+:- dynamic
+        bestRating/2.            
         
 currentColor(black).    
-currentColor(white).
+currentColor(white).	
 
 uiNameColor(white, w).
 uiNameColor(black, s).

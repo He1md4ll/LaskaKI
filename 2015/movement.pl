@@ -1,30 +1,28 @@
 displayPossibleDrafts :-
-        (current_predicate(possibleJump/3), possibleJump(X,_,Y)
+        (current_predicate(possibleJump/4), possibleJump([],X,_,Y)
         ;
-        current_predicate(possibleMove/2), possibleMove(X,Y)),
+        current_predicate(possibleMove/3), possibleMove([],X,Y)),
         write(X),write(Y),nl, fail.
 displayPossibleDrafts.
         
 applyTurn(Field, TargetField) :-
-		board(Field, [Color, _]),
-        (isJump(Field, TargetField) ->
-        possibleJump(Field,M,TargetField),
+		board(Field, [Color| _]),
+        (isJump(Color, Field, TargetField) ->
         board(M,[Oppo|Jailed]),
         opponent(Color,Oppo),
         doJump(Field,M,Oppo,Jailed,TargetField),!
         ;
-        isMove(Field,TargetField),
-        possibleMove(Field,TargetField),
+        isMove(Color, Field,TargetField),
         doMove(Field,TargetField) ,!
         ).
         
-isJump(Field, TargetField) :-
-        current_predicate(possibleJump/3), 
-        possibleJump(Field, _, TargetField), !.
+isJump(Color, Field, TargetField) :-
+        current_predicate(possibleJump/4), 
+        jump(Field, _, TargetField, Color), !.
         
-isMove(Field, TargetField) :-
-        current_predicate(possibleMove/2),
-        possibleMove(Field, TargetField), !.
+isMove(Color, Field, TargetField) :-
+        current_predicate(possibleMove/3),
+        move(Field, TargetField, Color), !.
         
 doJump(X,M,O,J,Y) :-
         retract(board(X,[Kopf|S])),
@@ -44,13 +42,13 @@ doMove(X,Y) :-
         assertz(board(Y,[Offz|S])).
 
 resetMovesAndJumps :-
-        abolish(possibleJump/3),
-        abolish(possibleMove/2).
+        abolish(possibleJump/4),
+        abolish(possibleMove/3).       
         
-hasPossibleJumps():-
-        current_predicate(possibleJump/3),
-        possibleJump(_,_,_).
+hasPossibleJumps(MoveOrder):-
+        current_predicate(possibleJump/4),
+        possibleJump(MoveOrder,_,_,_).
 
-hasPossibleMoves():-
-        current_predicate(possibleMove/2),
-        possibleMove(_,_).
+hasPossibleMoves(MoveOrder):-
+        current_predicate(possibleMove/3),
+        possibleMove(MoveOrder,_,_).

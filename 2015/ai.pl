@@ -1,58 +1,85 @@
-getDepth(6).
+getDepth(3).
 
 getBestTurn(Field, TargetField) :-
 	isOnlyOneTurnPossible(Field, TargetField), !.
 	
 getBestTurn(Field, TargetField) :-
+	aiColor(AiColor),
 	getDepth(Depth),
-	abSearch([], Depth, Rating, -10000, 10000),
-	getBest(Field, TargetFiled, Rating),
+	saveBoardToBackup,
+	resetMovesAndJumps,
+	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
+	getBest(Field, TargetField, Rating),
+	write(Field),write(TargetField),nl,
 	saveBackupToBoard.
 
 abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 	aiColor(AiColor),
 	enemy(Color, EnemyColor),
+	assertz(bestRating(MoveOrder, Alpha)),
 	setupBoard(MoveOrder),
-	resetMovesAndJumps,
-	writeAllPossibleDraftsFor(Color),
+	writeAllPossibleDraftsFor(Color,MoveOrder),
 	(
-	\+getNewMoveOrder(MoveOrder, NewMoveOrder, Field, TargetField)
-	-> 
-	Rating = -10000 % Keine Züge --> Spieler haette verloren --> Schlechte Bewertung
-	;
-	((Depth =< 0, CurrentColor \== AiColor ),
-    getBoardValue(Rating)
-    ;
-	NewDepth is Depth - 1,
-	NegaBeta is Alpha * -1,
-    NegaAlpha is Beta * -1,
-    
-    applyTurn(Field, TargetField),
-    
-    % rekursiver Aufruf mit neuem Board, Farbe und Suchtiefe
-    abSearch(EnemyColor, NewMoveOrder,NewDepth,ThisRating,NegaAlpha,NegaBeta),
-
-    % Vorzeichen vom Rating drehen
-    NegaThisRating is ThisRating * -1,
-
-    % Alpha-Beta-Auswertung
-    (
-    NegaThisRating >= Beta,
-    Rating = NegaThisRating,
-    % Hier müssen schlaue sachen gemacht werden
-    ;
-    NegaThisRating =< Alpha
-    % Hier muss tiefer in die den Suchbaum vorgedrungen werden
-	)).
+		\+hasPossibleJumps(MoveOrder),
+		\+hasPossibleMoves(MoveOrder),
+		Rating = -10000
+	;	
+		(
+			getNewMoveOrder(MoveOrder, NewMoveOrder),
+			(
+				(Depth =< 0, Color \== AiColor ),
+			    getBoardValue(Rating, AiColor)
+			;
+				bestRating(MoveOrder,Best),
+				NewDepth is Depth - 1,
+				NegaBeta is Best * -1,
+			    NegaAlpha is Beta * -1,
+			    
+			    % rekursiver Aufruf mit neuem Board, Farbe und Suchtiefe
+			    abSearch(EnemyColor, NewMoveOrder,NewDepth,ThisRating,NegaAlpha,NegaBeta),
+			
+			    % Vorzeichen vom Rating drehen
+			    V is ThisRating * -1,
+				(
+					V >= Beta,
+					(
+						V > Best,
+						retract(bestRating(MoveOrder,_)),
+						asserta(bestRating(MoveOrder,V))
+					;
+						true
+					)
+				;	
+					(
+						V > Best,
+						retract(bestRating(MoveOrder,_)),
+						asserta(bestRating(MoveOrder,V))
+					;
+						true
+					)
+					,fail
+				)
+			)
+		;
+			true	
+		)
+	), !.
 	
-getNewMoveOrder(MoveOrder, NewMoveOrder, Field, TargetField) :-
-	(hasPossibleMoves,possibleMove(Field, TargetField)
+getNewMoveOrder(MoveOrder, NewMoveOrder) :-
+	(
+		current_predicate(possibleMove/3),possibleMove(MoveOrder, Field, TargetField)
 	;
-	hasPossibleJumps,possibleJump(Field, TargetField)),
+		current_predicate(possibleJump/4),possibleJump(MoveOrder, Field, _, TargetField)
+	),
 	atom_concat(Field,TargetField, Draft),
 	append(MoveOrder,[Draft],NewMoveOrder).
 
-getBest(Field, TargetFiled, Rating).
+getBest(Field, TargetFiled, Rating) :-
+	bestRating([Draft|_], Rating),
+	translateDraft(Draft, Field, TargetFiled).
+	
+getBoardValue(Rating, AiColor) :-
+	aggregate_all(count, board(_,[AiColor|_]), Rating).
 	
 setupBoard(MoveOrder) :- 
 	saveBackupToBoard,
@@ -65,14 +92,14 @@ applyMoves([Head|Tail]) :-
 	applyMoves(Tail).		
 	
 isOnlyOneTurnPossible(Field, TargetField) :-
-	current_predicate(possibleMove/2),
-	aggregate_all(count, possibleMove(_,_), 1),
-	possibleMove(Field,TargetField), !.
+	current_predicate(possibleMove/3),
+	aggregate_all(count, possibleMove([],_,_), 1),
+	possibleMove([],Field,TargetField), !.
 	
 isOnlyOneTurnPossible(Field, TargetField) :-
-	current_predicate(possibleJump/3),
-	aggregate_all(count, possibleJump(_,_,_), 1),
-	possibleJump(Field,_,TargetField).	
+	current_predicate(possibleJump/4),
+	aggregate_all(count, possibleJump([],_,_,_), 1),
+	possibleJump([],Field,_,TargetField), !.	
 	
 saveBoardToBackup :- 
 	retract(backupBoard(_,_)),
