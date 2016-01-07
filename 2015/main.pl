@@ -1,7 +1,7 @@
 % link all files
 :- ['ai.pl'].
 :- ['board.pl'].
-%:- ['evaluate.pl'].
+:- ['evaluate.pl'].
 :- ['facts.pl'].
 %:- ['gamelogic.pl'].
 :- ['draftCalculator.pl'].

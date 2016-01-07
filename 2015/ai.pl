@@ -1,7 +1,23 @@
-getDepth(2).
+getDepth(Tiefe):-   
+	aggregate_all(count, board(_,[red|_]), R),
+	aggregate_all(count, board(_,[green|_]), G), 
+	R + G > 3,
+	Tiefe is 4,!
+	; 
+	aggregate_all(count, board(_,[]), E),
+	(                                       
+		E > 12, Tiefe is 4
+	;	
+		E > 10, Tiefe is 4
+	;
+		E > 8, Tiefe is 6
+	;
+		Tiefe is 8
+	),!.
 
 getBestTurn(Field, TargetField) :-
-	isOnlyOneTurnPossible(Field, TargetField), !.
+	isOnlyOneTurnPossible(Field, TargetField), 
+	write(Field),write(TargetField),nl,!.
 	
 getBestTurn(Field, TargetField) :-
 	aiColor(AiColor),
@@ -29,7 +45,7 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 			getNewMoveOrder(MoveOrder, NewMoveOrder),
 			(
 				(Depth =< 0, Color == AiColor ),
-			    getBoardValue(Rating, AiColor),
+			    calculateRating(Rating, AiColor, MoveOrder),
 			    retract(bestRating(MoveOrder,_)),
 			    assertz(bestRating(MoveOrder, Rating))
 			;
@@ -86,9 +102,6 @@ getNewMoveOrder(MoveOrder, NewMoveOrder) :-
 getBest(Field, TargetFiled, Rating) :-
 	bestRating([Draft|_], Rating),
 	translateDraft(Draft, Field, TargetFiled), !.
-	
-getBoardValue(Rating, AiColor) :-
-	aggregate_all(count, board(_,[AiColor|_]), Rating).
 	
 setupBoard(MoveOrder) :- 
 	saveBackupToBoard,
