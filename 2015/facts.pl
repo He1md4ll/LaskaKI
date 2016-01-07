@@ -24,6 +24,10 @@ opponent(white,black).
 opponent(white,red).
 opponent(black,white).
 opponent(black,green).
+opponent(green,black).
+opponent(green,red).
+opponent(red,white).
+opponent(red,green).
 
 enemy(white, black).
 enemy(black, white).

@@ -7,18 +7,19 @@ displayPossibleDrafts.
         
 applyTurn(Field, TargetField) :-
 		board(Field, [Color| _]),
-        (isJump(Color, Field, TargetField) ->
-        board(M,[Oppo|Jailed]),
-        opponent(Color,Oppo),
-        doJump(Field,M,Oppo,Jailed,TargetField),!
+        (
+	        isJump(Color, Field, OverField, TargetField),
+	        board(OverField,[Oppo|Jailed]),
+	        opponent(Color,Oppo),
+	        doJump(Field,OverField,Oppo,Jailed,TargetField)
         ;
-        isMove(Color, Field,TargetField),
-        doMove(Field,TargetField) ,!
-        ).
+	        isMove(Color, Field,TargetField),
+	        doMove(Field,TargetField)
+        ), !.
         
-isJump(Color, Field, TargetField) :-
+isJump(Color, Field, OverField, TargetField) :-
         current_predicate(possibleJump/4), 
-        jump(Field, _, TargetField, Color), !.
+        jump(Field, OverField, TargetField, Color), !.
         
 isMove(Color, Field, TargetField) :-
         current_predicate(possibleMove/3),

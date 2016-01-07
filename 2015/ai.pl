@@ -1,4 +1,4 @@
-getDepth(3).
+getDepth(2).
 
 getBestTurn(Field, TargetField) :-
 	isOnlyOneTurnPossible(Field, TargetField), !.
@@ -8,6 +8,7 @@ getBestTurn(Field, TargetField) :-
 	getDepth(Depth),
 	saveBoardToBackup,
 	resetMovesAndJumps,
+	abolish(bestRating/2),
 	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
 	getBest(Field, TargetField, Rating),
 	write(Field),write(TargetField),nl,
@@ -27,8 +28,10 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 		(
 			getNewMoveOrder(MoveOrder, NewMoveOrder),
 			(
-				(Depth =< 0, Color \== AiColor ),
-			    getBoardValue(Rating, AiColor)
+				(Depth =< 0, Color == AiColor ),
+			    getBoardValue(Rating, AiColor),
+			    retract(bestRating(MoveOrder,_)),
+			    assertz(bestRating(MoveOrder, Rating))
 			;
 				bestRating(MoveOrder,Best),
 				NewDepth is Depth - 1,
@@ -41,17 +44,21 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 			    % Vorzeichen vom Rating drehen
 			    V is ThisRating * -1,
 				(
-					V >= Beta,
+					V >= Beta
+				->	
 					(
-						V > Best,
+						V > Best
+					->  	
 						retract(bestRating(MoveOrder,_)),
 						asserta(bestRating(MoveOrder,V))
 					;
 						true
-					)
+					),
+					Rating is V
 				;	
 					(
-						V > Best,
+						V > Best
+					->	
 						retract(bestRating(MoveOrder,_)),
 						asserta(bestRating(MoveOrder,V))
 					;
@@ -61,22 +68,24 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 				)
 			)
 		;
-			true	
+			bestRating(MoveOrder,Rating)	
 		)
 	), !.
 	
 getNewMoveOrder(MoveOrder, NewMoveOrder) :-
 	(
-		current_predicate(possibleMove/3),possibleMove(MoveOrder, Field, TargetField)
+		current_predicate(possibleMove/3),
+		possibleMove(MoveOrder, Field, TargetField)
 	;
-		current_predicate(possibleJump/4),possibleJump(MoveOrder, Field, _, TargetField)
+		current_predicate(possibleJump/4),
+		possibleJump(MoveOrder, Field, _, TargetField)
 	),
 	atom_concat(Field,TargetField, Draft),
 	append(MoveOrder,[Draft],NewMoveOrder).
 
 getBest(Field, TargetFiled, Rating) :-
 	bestRating([Draft|_], Rating),
-	translateDraft(Draft, Field, TargetFiled).
+	translateDraft(Draft, Field, TargetFiled), !.
 	
 getBoardValue(Rating, AiColor) :-
 	aggregate_all(count, board(_,[AiColor|_]), Rating).

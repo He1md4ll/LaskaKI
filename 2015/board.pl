@@ -4,29 +4,29 @@
 :- dynamic
 	backupBoard/2.	
         
-board(a4,[white]).
+board(a4,[]).
 board(a6,[white]).
-board(b3,[white]).
+board(b3,[]).
 board(b5,[white]).
-board(b7,[white]).
-board(c2,[white]).
-board(c4,[white]).
+board(b7,[]).
+board(c2,[white,white]).
+board(c4,[]).
 board(c6,[white]).
-board(c8,[white]).
-board(d1,[]). %
-board(d3,[]). % diese fünf Felder
+board(c8,[black]).
+board(d1,[white,black]). %
+board(d3,[black,white]). % diese fünf Felder
 board(d5,[]). %
-board(d7,[]). % sind anfangs unbesetzt
+board(d7,[black]). % sind anfangs unbesetzt
 board(d9,[]). %
-board(e2,[black]).
+board(e2,[]).
 board(e4,[black]).
-board(e6,[black]).
-board(e8,[black]).
-board(f3,[black]).
-board(f5,[black]).
+board(e6,[]).
+board(e8,[black,white]).
+board(f3,[]).
+board(f5,[green,black,black]).
 board(f7,[black]).
-board(g4,[black]).
-board(g6,[black]).
+board(g4,[]).
+board(g6,[]).
         
 % Felder des Brettes während eines Spiels
 :- dynamic       % brett(Zeile+Spalte,Farbe)
