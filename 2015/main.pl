@@ -36,12 +36,25 @@ getTurnFor(Color, Field, TargetField) :-
         aiDraft(Field, TargetField)
         ).
         
+checkPlayerDraft(Field,TargetField) :-
+	hasPossibleMoves([]),
+	possibleMove([],Field,TargetField),!
+	;
+	hasPossibleJumps([]),
+	possibleJump([],Field,_,TargetField),!
+	;
+	write('Falsche Eingabe!'),nl,fail.       
+        
 aiDraft(Field, TargetField) :-
 	getBestTurn(Field, TargetField).
 
-playerDraft(Field, TargetField) :-       
-        read(Draft),
-        translateDraft(Draft, Field, TargetField).
+playerDraft(Field, TargetField) :-    
+    read(Draft),
+    translateDraft(Draft, Field, TargetField),
+    checkPlayerDraft(Field, TargetField),!.
+    
+playerDraft(Field, TargetField) :- 
+	playerDraft(Field, TargetField).       
         
 changeCurrentColor(Color) :-
         retract(currentColor(Color)),

@@ -1,16 +1,16 @@
 getDepth(Tiefe):-   
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
-	R + G > 3,
-	Tiefe is 4,!
+	R + G > 4,
+	Tiefe is 6,!
 	; 
 	aggregate_all(count, board(_,[]), E),
 	(                                       
-		E > 12, Tiefe is 4
+		E > 12, Tiefe is 6
 	;	
-		E > 10, Tiefe is 4
+		E > 10, Tiefe is 6
 	;
-		E > 8, Tiefe is 6
+		E > 8, Tiefe is 8
 	;
 		Tiefe is 8
 	),!.
@@ -43,7 +43,8 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 		(
 			getNewMoveOrder(MoveOrder, NewMoveOrder),
 			(
-				(Depth =< 0, Color == AiColor ),
+				Depth =< 0, 
+				Color == AiColor,
 			    calculateRating(Rating, AiColor, MoveOrder),
 			    retract(bestRating(MoveOrder,_)),
 			    asserta(bestRating(MoveOrder, Rating))
@@ -55,37 +56,22 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 			    
 			    % rekursiver Aufruf mit neuem Board, Farbe und Suchtiefe
 			    abSearch(EnemyColor, NewMoveOrder,NewDepth,ThisRating,NegaAlpha,NegaBeta),
-			
-			    % Vorzeichen vom Rating drehen
-			    V is ThisRating * -1,
-				(
-					V >= Beta
-				->	
-					(
-						V > Best
-					->  	
-						retract(bestRating(MoveOrder,_)),
-						assertz(bestRating(MoveOrder,V))
-					;
-						true
-					),
-					Rating is V
-				;	
-					(
-						V > Best
-					->	
-						retract(bestRating(MoveOrder,_)),
-						assertz(bestRating(MoveOrder,V))
-					;
-						true
-					)
-					,fail
-				)
+				
+				% Vorzeichen vom Rating drehen
+    			V is ThisRating * -1,
+			    checkAB(V,Best,Beta,Rating,MoveOrder)
 			)
 		;
 			bestRating(MoveOrder,Rating)	
 		)
 	), !.
+	
+checkAB(V,Best,Beta,Rating,MoveOrder):-
+	V > Best,
+	retract(bestRating(MoveOrder,_)),
+	assertz(bestRating(MoveOrder,V)),
+	V >= Beta,
+	Rating is V.
 	
 getNewMoveOrder(MoveOrder, NewMoveOrder) :-
 	(

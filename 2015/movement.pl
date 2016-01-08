@@ -48,8 +48,8 @@ resetMovesAndJumps :-
         
 hasPossibleJumps(MoveOrder):-
         current_predicate(possibleJump/4),
-        possibleJump(MoveOrder,_,_,_).
+        possibleJump(MoveOrder,_,_,_),!.
 
 hasPossibleMoves(MoveOrder):-
         current_predicate(possibleMove/3),
-        possibleMove(MoveOrder,_,_).
+        possibleMove(MoveOrder,_,_),!.

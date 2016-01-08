@@ -30,3 +30,8 @@ testA(Best) :-
 ;
 	Best = 3	
 ).
+
+testB :-
+	checkAB(12,-10000,10000,_,[]);
+	checkAB(18,12,10000,_,[]).
+	
