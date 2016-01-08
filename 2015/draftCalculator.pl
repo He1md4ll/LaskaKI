@@ -1,8 +1,11 @@
 writeAllPossibleDraftsFor(Color, MoveOrder) :-
+        writeAllPossibleDraftsWithoutZugzwangFor(Color, MoveOrder),
+        checkZugzwang(MoveOrder), !.
+       
+writeAllPossibleDraftsWithoutZugzwangFor(Color, MoveOrder) :-
         allSoldierDrafts(Color, MoveOrder),
         relatedColor(Color, GeneralColor),
-        allSoldierDrafts(GeneralColor, MoveOrder),
-        checkZugzwang(MoveOrder), !.        
+        allSoldierDrafts(GeneralColor, MoveOrder), !.            
         
 allSoldierDrafts(Color, MoveOrder) :-
         board(Field, [Color|_]),           % Get next figure position

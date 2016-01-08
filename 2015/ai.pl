@@ -27,7 +27,6 @@ getBestTurn(Field, TargetField) :-
 	abolish(bestRating/2),
 	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
 	getBest(Field, TargetField, Rating),
-	write(Field),write(TargetField),nl,
 	saveBackupToBoard.
 
 abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
@@ -47,7 +46,7 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 				(Depth =< 0, Color == AiColor ),
 			    calculateRating(Rating, AiColor, MoveOrder),
 			    retract(bestRating(MoveOrder,_)),
-			    assertz(bestRating(MoveOrder, Rating))
+			    asserta(bestRating(MoveOrder, Rating))
 			;
 				bestRating(MoveOrder,Best),
 				NewDepth is Depth - 1,
@@ -66,7 +65,7 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 						V > Best
 					->  	
 						retract(bestRating(MoveOrder,_)),
-						asserta(bestRating(MoveOrder,V))
+						assertz(bestRating(MoveOrder,V))
 					;
 						true
 					),
@@ -76,7 +75,7 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 						V > Best
 					->	
 						retract(bestRating(MoveOrder,_)),
-						asserta(bestRating(MoveOrder,V))
+						assertz(bestRating(MoveOrder,V))
 					;
 						true
 					)
@@ -99,9 +98,12 @@ getNewMoveOrder(MoveOrder, NewMoveOrder) :-
 	atom_concat(Field,TargetField, Draft),
 	append(MoveOrder,[Draft],NewMoveOrder).
 
-getBest(Field, TargetFiled, Rating) :-
-	bestRating([Draft|_], Rating),
-	translateDraft(Draft, Field, TargetFiled), !.
+getBest(Field, TargetField, Rating) :-
+	bestRating([Draft|Tail], Rating),
+	translateDraft(Draft, Field, TargetField), 
+	write(Field),write(TargetField),nl,
+	write('Rating: '),write(Rating),nl,
+	write('Rest der Zugfolge: '), write(Tail),nl,!.
 	
 setupBoard(MoveOrder) :- 
 	saveBackupToBoard,

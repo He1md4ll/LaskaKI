@@ -1,6 +1,7 @@
 % Moegliche weitere Bewertungen:
 %	Abstand zum Gegner: 1 Feld besser als 2 oder mehr
-%	Zweiter und Dritter Gefangener
+%	Zweiter und Dritter Gefangener 
+%	Erster und zweiter gefangener vom Gegner --> also gleiche Farbe
 calculateRating(Rating, AiColor, MoveOrder) :-
    enemy(AiColor, EnemyColor),   
    aggregate_all(count, board(_,[black|_]), S),
@@ -9,27 +10,33 @@ calculateRating(Rating, AiColor, MoveOrder) :-
    aggregate_all(count, board(_,[green|_]), G),
    aggregate_all(count, board(_,[_,black|_]), JS), % gefangene Schwarze an erster Position
    aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
+   append(MoveOrder, [my], MyMoveOrder),
+   writeAllPossibleDraftsWithoutZugzwangFor(AiColor,MyMoveOrder),
    (
-	   hasPossibleMoves(MoveOrder),
-	   aggregate_all(count, possibleMove(MoveOrder,_,_), M),
-	   J is 0
+	   hasPossibleMoves(MyMoveOrder),
+	   aggregate_all(count, possibleMove(MyMoveOrder,_,_), M)
    ;
-	   
-	   hasPossibleJumps(MoveOrder),
-	   aggregate_all(count, possibleJump(MoveOrder,_,_,_), J),
 	   M is 0
    ),
+   (
+   	   hasPossibleJumps(MyMoveOrder),
+	   aggregate_all(count, possibleJump(MyMoveOrder,_,_,_), J)
+   ;
+   	   J is 0
+   ),
    append(MoveOrder, [oppo], OppoMoveOrder),
-   writeAllPossibleDraftsFor(EnemyColor, OppoMoveOrder),
+   writeAllPossibleDraftsWithoutZugzwangFor(EnemyColor, OppoMoveOrder),
    (
 	   hasPossibleMoves(OppoMoveOrder),
-	   aggregate_all(count, possibleMove(OppoMoveOrder,_,_), OM),
-	   OJ is 0
+	   aggregate_all(count, possibleMove(OppoMoveOrder,_,_), OM)
    ;
-	   
+       OM is 0
+   ),
+   (
 	   hasPossibleJumps(OppoMoveOrder),
-	   aggregate_all(count, possibleJump(OppoMoveOrder,_,_,_), OJ),
-	   OM is 0
+	   aggregate_all(count, possibleJump(OppoMoveOrder,_,_,_), OJ)
+   ;
+       OJ is 0
    ),				
    (
 	   M == 0, 
