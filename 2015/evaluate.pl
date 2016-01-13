@@ -2,8 +2,8 @@
 %	Abstand zum Gegner: 1 Feld besser als 2 oder mehr
 %	Zweiter und Dritter Gefangener 
 %	Erster und zweiter gefangener vom Gegner --> also gleiche Farbe
-calculateRating(Rating, AiColor, MoveOrder) :-
-   enemy(AiColor, EnemyColor),   
+calculateRating(Rating, Color, MoveOrder) :-
+   enemy(Color, EnemyColor),   
    aggregate_all(count, board(_,[black|_]), S),
    aggregate_all(count, board(_,[white|_]), W),
    aggregate_all(count, board(_,[red|_]), R),
@@ -11,7 +11,7 @@ calculateRating(Rating, AiColor, MoveOrder) :-
    aggregate_all(count, board(_,[_,black|_]), JS), % gefangene Schwarze an erster Position
    aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
    append(MoveOrder, [my], MyMoveOrder),
-   writeAllPossibleDraftsWithoutZugzwangFor(AiColor,MyMoveOrder),
+   writeAllPossibleDraftsWithoutZugzwangFor(Color,MyMoveOrder),
    (
 	   hasPossibleMoves(MyMoveOrder),
 	   aggregate_all(count, possibleMove(MyMoveOrder,_,_), M)
@@ -39,18 +39,14 @@ calculateRating(Rating, AiColor, MoveOrder) :-
        OJ is 0
    ),				
    (
-	   M == 0, 
-	   J == 0, 
-	   Rating is -10000
-   ;
 	   OM == 0, 
 	   OJ == 0, 
-	   Rating is 10000
+	   Rating is 5000
    ;
    	   FigureValue is 20*(S-W) + 65*(R-G) + 5*(JS-JW),
-   	   MoveValue is 3*(M+J-OM-OJ),
+   	   MoveValue is 0*(M+J-OM-OJ),
    	   (
-   	       AiColor == black,
+   	       Color == black,
    	       Rating is FigureValue + MoveValue
    	   ;
    	   	  Rating is MoveValue - FigureValue

@@ -1,16 +1,16 @@
 getDepth(Depth):-   
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
-	R + G > 4,
+	R + G > 3,
 	Depth is 6,!
 	; 
 	aggregate_all(count, board(_,[]), E),
 	(                                       
-		E > 12, Depth is 4
+		E > 12, Depth is 5
 	;	
 		E > 10, Depth is 6
 	;
-		E > 8, Depth is 6
+		E > 8, Depth is 7
 	;
 		Depth is 8
 	),!.
@@ -27,66 +27,81 @@ getBestTurn(Field, TargetField) :-
 	abolish(bestRating/2),
 	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
 	getBest(Field, TargetField, Rating),
+	%writeBestRating,
 	saveBackupToBoard.
 
+abSearch(Color, MoveOrder,0,Rating,_,_) :-
+	setupBoard(MoveOrder),
+	calculateRating(Rating, Color, MoveOrder),
+    asserta(bestRating(MoveOrder, Rating)), !.
+
 abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
-	aiColor(AiColor),
 	enemy(Color, EnemyColor),
 	assertz(bestRating(MoveOrder, Alpha)),
 	setupBoard(MoveOrder),
 	writeAllPossibleDraftsFor(Color,MoveOrder),
-	(
-		\+hasPossibleJumps(MoveOrder),
-		\+hasPossibleMoves(MoveOrder),
-		Rating = -10000
-	;	
-		(
-			getNewMoveOrder(MoveOrder, NewMoveOrder),
-			(
-				Depth =< 0, 
-				Color == AiColor,
-			    calculateRating(Rating, AiColor, MoveOrder),
-			    retract(bestRating(MoveOrder,_)),
-			    asserta(bestRating(MoveOrder, Rating))
-			;
-				bestRating(MoveOrder,Best),
-				NewDepth is Depth - 1,
-				NegaBeta is Best * -1,
-			    NegaAlpha is Beta * -1,
-			    
-			    % rekursiver Aufruf mit neuem Board, Farbe und Suchtiefe
-			    abSearch(EnemyColor, NewMoveOrder,NewDepth,ThisRating,NegaAlpha,NegaBeta),
-				
-				% Vorzeichen vom Rating drehen
-    			V is ThisRating * -1,
-			    V > Best,
-				retract(bestRating(MoveOrder,_)),
-				assertz(bestRating(MoveOrder,V)),
-				V >= Beta,
-				Rating is V
-			)
-		;
-			bestRating(MoveOrder,Rating)	
-		)
-	), !.
+	checkHasMovesOrJumps(MoveOrder),
+	getNewMoveOrder(MoveOrder, Draft),
+	append(MoveOrder,[Draft],NewMoveOrder),
+	coolStuff(EnemyColor, MoveOrder, Rating, NewMoveOrder, Depth, Beta).
 	
-getNewMoveOrder(MoveOrder, NewMoveOrder) :-
-	(
-		current_predicate(possibleMove/3),
-		possibleMove(MoveOrder, Field, TargetField)
-	;
-		current_predicate(possibleJump/4),
-		possibleJump(MoveOrder, Field, _, TargetField)
-	),
-	atom_concat(Field,TargetField, Draft),
-	append(MoveOrder,[Draft],NewMoveOrder).
+abSearch(_, MoveOrder,_,Rating,Alpha,_) :-
+	bestRating(MoveOrder,Rating),
+	deleteAlphaMoveOrderRating(MoveOrder, Alpha).
+	
+deleteAlphaMoveOrderRating(MoveOrder, Alpha) :-
+	retract(bestRating(MoveOrder,Alpha)).
+	
+deleteAlphaMoveOrderRating(_, _).	
+	
+checkHasMovesOrJumps(MoveOrder) :-
+	hasPossibleJumps(MoveOrder),!.
+	
+checkHasMovesOrJumps(MoveOrder) :-
+	hasPossibleMoves(MoveOrder),!.
+	
+checkHasMovesOrJumps(MoveOrder) :-
+	saveNewBestRating(MoveOrder, -5000).	
+	
+coolStuff(EnemyColor, MoveOrder, Rating, NewMoveOrder, Depth, Beta) :-
+	bestRating(MoveOrder,Best),
+	nextLayer(EnemyColor, NewMoveOrder, V, Depth,Best,Beta),!,
+	V > Best,
+	saveNewBestRating(MoveOrder, V),
+	V >= Beta,
+	Rating is V.
+	
+nextLayer(EnemyColor, NewMoveOrder, V, Depth,Best,Beta) :-
+	NewDepth is Depth - 1,
+	NegaBeta is Best * -1,
+	NegaAlpha is Beta * -1,
+	% rekursiver Aufruf mit neuem Board, Farbe und Suchtiefe
+	abSearch(EnemyColor, NewMoveOrder,NewDepth,ThisRating,NegaAlpha,NegaBeta),
+	% Vorzeichen vom Rating drehen
+	V is ThisRating * -1,!.	
+	
+saveNewBestRating(MoveOrder, Rating) :-
+	retract(bestRating(MoveOrder,_)),
+	assertz(bestRating(MoveOrder,Rating)), !.
+	
+getNewMoveOrder(MoveOrder, Draft) :-
+	current_predicate(possibleMove/3),
+	possibleMove(MoveOrder, Field, TargetField),
+	atom_concat(Field,TargetField, Draft).
+	
+getNewMoveOrder(MoveOrder, Draft) :-
+	current_predicate(possibleJump/4),
+	possibleJump(MoveOrder, Field, _, TargetField),
+	atom_concat(Field,TargetField, Draft).
 
 getBest(Field, TargetField, Rating) :-
-	bestRating([Draft|Tail], Rating),
+	NegaRating is Rating * -1,
+	bestRating([Draft|[]], NegaRating),
 	translateDraft(Draft, Field, TargetField), 
 	write(Field),write(TargetField),nl,
-	write('Rating: '),write(Rating),nl,
-	write('Rest der Zugfolge: '), write(Tail),nl,!.
+	write('Rating: '),write(NegaRating),nl,
+	%write('Rest der Zugfolge: '), write(Tail),
+	!.
 	
 setupBoard(MoveOrder) :- 
 	saveBackupToBoard,
@@ -129,3 +144,11 @@ saveBackupToBoard :-
 	fail.
 
 saveBackupToBoard.
+
+writeBestRating :-
+	bestRating(MoveOrder, Rating),
+	checkMoveOrder(MoveOrder),
+	write('MoveOrder: '), write(MoveOrder),write(' Rating: '),write(Rating),nl,fail.
+writeBestRating.
+
+checkMoveOrder([e8d9 | _]).
