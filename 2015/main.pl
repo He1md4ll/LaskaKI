@@ -46,7 +46,14 @@ checkPlayerDraft(Field,TargetField) :-
 	write('Falsche Eingabe!'),nl,fail.       
         
 aiDraft(Field, TargetField) :-
-	getBestTurn(Field, TargetField).
+	statistics(walltime,_),
+	getBestTurn(Field, TargetField),
+	statistics(walltime,[_,NewTime]),
+	aiCalculationTime(UsedTime),
+	NewUsedTime is NewTime + UsedTime,
+	asserta(aiCalculationTime(NewUsedTime)),retract(aiCalculationTime(UsedTime)),
+	write('Zeit in MilliSekunden:'),write(NewUsedTime),nl,!.
+	
 
 playerDraft(Field, TargetField) :-    
     read(Draft),

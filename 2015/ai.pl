@@ -1,18 +1,18 @@
-getDepth(Tiefe):-   
+getDepth(Depth):-   
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
 	R + G > 4,
-	Tiefe is 6,!
+	Depth is 6,!
 	; 
 	aggregate_all(count, board(_,[]), E),
 	(                                       
-		E > 12, Tiefe is 6
+		E > 12, Depth is 4
 	;	
-		E > 10, Tiefe is 6
+		E > 10, Depth is 6
 	;
-		E > 8, Tiefe is 8
+		E > 8, Depth is 6
 	;
-		Tiefe is 8
+		Depth is 8
 	),!.
 
 getBestTurn(Field, TargetField) :-
@@ -59,19 +59,16 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
 				
 				% Vorzeichen vom Rating drehen
     			V is ThisRating * -1,
-			    checkAB(V,Best,Beta,Rating,MoveOrder)
+			    V > Best,
+				retract(bestRating(MoveOrder,_)),
+				assertz(bestRating(MoveOrder,V)),
+				V >= Beta,
+				Rating is V
 			)
 		;
 			bestRating(MoveOrder,Rating)	
 		)
 	), !.
-	
-checkAB(V,Best,Beta,Rating,MoveOrder):-
-	V > Best,
-	retract(bestRating(MoveOrder,_)),
-	assertz(bestRating(MoveOrder,V)),
-	V >= Beta,
-	Rating is V.
 	
 getNewMoveOrder(MoveOrder, NewMoveOrder) :-
 	(

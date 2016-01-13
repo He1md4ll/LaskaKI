@@ -7,7 +7,11 @@
 :- dynamic
         aiColor/1.
 :- dynamic
-        bestRating/2.            
+        bestRating/2.
+:- dynamic
+		aiCalculationTime/1.                   
+        
+aiCalculationTime(0).        
         
 currentColor(black).    
 currentColor(white).	
