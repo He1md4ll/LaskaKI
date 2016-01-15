@@ -16,19 +16,22 @@ getDepth(Depth):-
 	),!.
 
 getBestTurn(Field, TargetField) :-
-	isOnlyOneTurnPossible(Field, TargetField), 
-	write(Field),write(TargetField),nl,!.
+	resetMovesAndJumps,
+	abolish(bestRating/2),
+	calculateTurn(Field, TargetField),
+	write(Field),write(TargetField),nl.
 	
-getBestTurn(Field, TargetField) :-
+calculateTurn(Field, TargetField) :-
+	isOnlyOneTurnPossible(Field, TargetField),!.
+	
+calculateTurn(Field, TargetField) :-
 	aiColor(AiColor),
 	getDepth(Depth),
 	saveBoardToBackup,
-	resetMovesAndJumps,
-	abolish(bestRating/2),
 	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
 	getBest(Field, TargetField, Rating),
 	%writeBestRating,
-	saveBackupToBoard.
+	saveBackupToBoard.	
 
 abSearch(Color, MoveOrder,0,Rating,_,_) :-
 	setupBoard(MoveOrder),
@@ -97,11 +100,8 @@ getNewMoveOrder(MoveOrder, Draft) :-
 getBest(Field, TargetField, Rating) :-
 	NegaRating is Rating * -1,
 	bestRating([Draft|[]], NegaRating),
-	translateDraft(Draft, Field, TargetField), 
-	write(Field),write(TargetField),nl,
-	write('Rating: '),write(NegaRating),nl,
-	%write('Rest der Zugfolge: '), write(Tail),
-	!.
+	translateDraft(Draft, Field, TargetField),
+	write('Rating: '),write(NegaRating),nl,!.
 	
 setupBoard(MoveOrder) :- 
 	saveBackupToBoard,
@@ -150,5 +150,5 @@ writeBestRating :-
 	checkMoveOrder(MoveOrder),
 	write('MoveOrder: '), write(MoveOrder),write(' Rating: '),write(Rating),nl,fail.
 writeBestRating.
-
 checkMoveOrder([e8d9 | _]).
+

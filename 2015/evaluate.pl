@@ -1,7 +1,8 @@
 % Moegliche weitere Bewertungen:
 %	Abstand zum Gegner: 1 Feld besser als 2 oder mehr
-%	Zweiter und Dritter Gefangener 
-%	Erster und zweiter gefangener vom Gegner --> also gleiche Farbe
+%	Bei Jump Tiefe nicht verringern, da Zugzwang
+%	In Tiefe 0 auf Jump überprüfen, dann 1 weiter rechnen
+%	BRANCH: ReuseMoveOrder, MoveOrder wiederverwenden -> gemachten Zug aus Order löschen, Rest wiederverwenden
 calculateRating(Rating, Color, MoveOrder) :-
    enemy(Color, EnemyColor),   
    aggregate_all(count, board(_,[black|_]), S),
@@ -10,6 +11,8 @@ calculateRating(Rating, Color, MoveOrder) :-
    aggregate_all(count, board(_,[green|_]), G),
    aggregate_all(count, board(_,[_,black|_]), JS), % gefangene Schwarze an erster Position
    aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
+   aggregate_all(count, board(_,[_,_,black|_]), JJS), % gefangene Schwarze an zweiter Position
+   aggregate_all(count, board(_,[_,_,white|_]), JJW), % gefangene Weisse an zweiter Position
    append(MoveOrder, [my], MyMoveOrder),
    writeAllPossibleDraftsWithoutZugzwangFor(Color,MyMoveOrder),
    (
@@ -43,13 +46,21 @@ calculateRating(Rating, Color, MoveOrder) :-
 	   OJ == 0, 
 	   Rating is 5000
    ;
-   	   FigureValue is 20*(S-W) + 65*(R-G) + 5*(JS-JW),
-   	   MoveValue is 0*(M+J-OM-OJ),
+   	   aiColor(AiColor),
+   	   soldierValue(AiColor,SV),
+   	   generalValue(AiColor,GV),
+   	   jailedSoldierValue(AiColor,JSV),
+   	   jailedJailedSoldierValue(AiColor,JJSV),
+   	   moveValue(AiColor,MV),
+   	   jumpValue(AiColor,JV),
+   	   FigureValue is SV*(S-W) + GV*(R-G) + JSV*(JS-JW) + JJSV*(JJS-JJW),
+   	   MoveValue is MV*(M-OM),
+   	   JumpValue is JV*(J-OJ),
    	   (
    	       Color == black,
-   	       Rating is FigureValue + MoveValue
+   	       Rating is FigureValue + MoveValue + JumpValue
    	   ;
-   	   	  Rating is MoveValue - FigureValue
+   	   	  Rating is (MoveValue + JumpValue) - FigureValue
    	   )
    ),
    !.	

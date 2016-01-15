@@ -9,7 +9,21 @@
 :- dynamic
         bestRating/2.
 :- dynamic
-		aiCalculationTime/1.                   
+		aiCalculationTime/1.
+		
+% Values for evaluation of rating
+soldierValue(white, 20).
+soldierValue(black, -1).
+generalValue(white, 65).
+generalValue(black, -1).
+jailedSoldierValue(white, 5).
+jailedSoldierValue(black, 0).
+jailedJailedSoldierValue(white, 1).
+jailedJailedSoldierValue(black, 0).
+moveValue(white, 3).
+moveValue(black, 0).
+jumpValue(white, 5).
+jumpValue(black, 0).												                   
         
 aiCalculationTime(0).        
         
