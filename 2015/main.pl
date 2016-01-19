@@ -18,7 +18,7 @@ start(AiColor) :-
         writeAllPossibleDraftsFor(Color,[]),
         \+checkIsWinner(Color),
         displayPossibleDrafts,
-        getTurnAiOnly(Color, Field, TargetField),
+        getTurnFor(Color, Field, TargetField),
         applyTurn(Field, TargetField),
         resetMovesAndJumps,
         changeCurrentColor(Color),
@@ -34,13 +34,7 @@ getTurnFor(Color, Field, TargetField) :-
         playerDraft(Field, TargetField)
         ;
         aiDraft(Field, TargetField)
-        ).
-        
-getTurnAiOnly(Color, Field, TargetField) :-
-		retract(aiColor(_)),
-		asserta(aiColor(Color)),
-        write(Color), write(' am Zug:'),
-        aiDraft(Field, TargetField).        
+        ).      
         
 checkPlayerDraft(Field,TargetField) :-
 	hasPossibleMoves([]),

@@ -2,7 +2,7 @@ getDepth(Depth):-
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
 	R + G > 3,
-	Depth is 6,!
+	Depth is 5,!
 	; 
 	aggregate_all(count, board(_,[]), E),
 	(                                       
@@ -17,17 +17,19 @@ getDepth(Depth):-
 
 getBestTurn(Field, TargetField) :-
 	abolish(bestRating/2),
-	calculateTurn(Field, TargetField),
+	calculateTurn(Field, TargetField, Rating),
 	write(Field),write(TargetField),nl,
-	debugCounter(Count),
-	write('Additional Moves: '),write(Count),
-	retract(debugCounter(Count)),
-	assertz(debugCounter(0)).
+	%debugCounter(Count),
+	%write('Additional Moves: '),write(Count),nl,
+	write('Rating: '),write(Rating),nl
+	%retract(debugCounter(Count)),
+	%assertz(debugCounter(0))
+	.
 	
 calculateTurn(Field, TargetField) :-
 	isOnlyOneTurnPossible(Field, TargetField),!.
 	
-calculateTurn(Field, TargetField) :-
+calculateTurn(Field, TargetField, Rating) :-
 	aiColor(AiColor),
 	getDepth(Depth),
 	saveBoardToBackup,
@@ -37,10 +39,10 @@ calculateTurn(Field, TargetField) :-
 	saveBackupToBoard.	
 
 abSearch(Color, MoveOrder,-1,Rating,_,_) :-
-	debugCounter(Count),
-	retract(debugCounter(Count)),
-	NewCount is Count + 1,
-	assertz(debugCounter(NewCount)), 
+	%debugCounter(Count),
+	%retract(debugCounter(Count)),
+	%NewCount is Count + 1,
+	%assertz(debugCounter(NewCount)), 
 	setupBoard(MoveOrder),
 	calculateRating(Rating, Color, MoveOrder),
 	asserta(bestRating(MoveOrder, Rating)), !.
@@ -115,7 +117,7 @@ getBest(Field, TargetField, Rating) :-
 	NegaRating is Rating * -1,
 	bestRating([Draft|[]], NegaRating),
 	translateDraft(Draft, Field, TargetField),
-	write('Rating: '),write(NegaRating),nl,!.
+	!.
 	
 setupBoard(MoveOrder) :- 
 	saveBackupToBoard,

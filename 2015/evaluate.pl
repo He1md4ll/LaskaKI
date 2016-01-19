@@ -13,6 +13,8 @@ calculateRating(Rating, Color, MoveOrder) :-
    aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
    aggregate_all(count, board(_,[_,_,black|_]), JJS), % gefangene Schwarze an zweiter Position
    aggregate_all(count, board(_,[_,_,white|_]), JJW), % gefangene Weisse an zweiter Position
+   %countDistance(Color),
+   %distanceCounter(Distance),!,
    append(MoveOrder, [my], MyMoveOrder),
    writeAllPossibleDraftsWithoutZugzwangFor(Color,MyMoveOrder),
    (
@@ -46,21 +48,35 @@ calculateRating(Rating, Color, MoveOrder) :-
 	   OJ == 0, 
 	   Rating is 5000
    ;
-   	   aiColor(AiColor),
-   	   soldierValue(AiColor,SV),
-   	   generalValue(AiColor,GV),
-   	   jailedSoldierValue(AiColor,JSV),
-   	   jailedJailedSoldierValue(AiColor,JJSV),
-   	   moveValue(AiColor,MV),
-   	   jumpValue(AiColor,JV),
+   	   soldierValue(SV),
+   	   generalValue(GV),
+   	   jailedSoldierValue(JSV),
+   	   jailedJailedSoldierValue(JJSV),
+   	   moveValue(MV),
+   	   jumpValue(JV),
+   	   %distanceValue(DV),
    	   FigureValue is SV*(S-W) + GV*(R-G) + JSV*(JS-JW) + JJSV*(JJS-JJW),
    	   MoveValue is MV*(M-OM),
    	   JumpValue is JV*(J-OJ),
+   	   DistanceValue is 0,
    	   (
    	       Color == black,
-   	       Rating is FigureValue + MoveValue + JumpValue
+   	       Rating is FigureValue + MoveValue + JumpValue + DistanceValue
    	   ;
-   	   	  Rating is (MoveValue + JumpValue) - FigureValue
+   	   	  Rating is (MoveValue + JumpValue + DistanceValue) - FigureValue 
    	   )
    ),
-   !.	
+   !.
+   
+countDistance(Color) :-
+	enemy(Color, EnemyColor),
+	jump(Field,OverField,TargetField,Color),
+	board(Field,[Color|_]),
+	board(OverField,[]),
+	board(TargetField,[EnemyColor|_]),
+	distanceCounter(Counter),
+	retract(distanceCounter(Counter)),
+	NewCounter is Counter + 1,
+	asserta(distanceCounter(NewCounter)),
+	fail.
+countDistance(_).
