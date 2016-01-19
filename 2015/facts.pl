@@ -26,7 +26,7 @@ jailedSoldierValue(10).
 jailedJailedSoldierValue(2).
 moveValue(1).
 jumpValue(3).
-distanceValue(5).											                   
+distanceValue(10).											                   
         
 aiCalculationTime(0).        
         

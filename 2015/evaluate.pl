@@ -44,17 +44,30 @@ calculateRating(Rating, _, _) :-
 countDistance(Color) :-
 	retract(distanceCounter(_)),
 	asserta(distanceCounter(0)),
-	enemy(Color, EnemyColor),
-	jump(Field,OverField,TargetField,Color),
-	board(Field,[Color|_]),
-	board(OverField,[]),
-	board(TargetField,[EnemyColor|_]),
+	relatedColor(Color, GeneralColor),
+	jump(Field,OverField,TargetField,GeneralColor),
+	checkBoardForDistance(GeneralColor, Field, OverField, TargetField),
 	distanceCounter(Counter),
 	retract(distanceCounter(Counter)),
 	NewCounter is Counter + 1,
 	asserta(distanceCounter(NewCounter)),
 	fail.
 countDistance(_).
+
+checkBoardForDistance(GeneralColor, Field, OverField, TargetField) :-
+	relatedColor(Color, GeneralColor),
+	enemy(Color, EnemyColor),
+	board(Field,[GeneralColor|_]),
+	board(OverField,[]),
+	board(TargetField,[EnemyColor|_]),!.
+	
+checkBoardForDistance(GeneralColor, Field, OverField, TargetField) :-
+	relatedColor(Color, GeneralColor),
+	enemy(Color, EnemyColor),
+	relatedColor(EnemyColor, EnemyGeneralColor),
+	board(Field,[GeneralColor|_]),
+	board(OverField,[]),
+	board(TargetField,[EnemyGeneralColor|_]).	
 
 countMovesFor(MoveOrder, M) :-
 	hasPossibleMoves(MoveOrder),

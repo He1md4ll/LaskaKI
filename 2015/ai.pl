@@ -2,7 +2,7 @@ getDepth(Depth):-
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
 	R + G > 3,
-	Depth is 5,!
+	Depth is 6,!
 	; 
 	aggregate_all(count, board(_,[]), E),
 	(                                       
