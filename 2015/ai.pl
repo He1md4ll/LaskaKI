@@ -16,10 +16,13 @@ getDepth(Depth):-
 	),!.
 
 getBestTurn(Field, TargetField) :-
-	resetMovesAndJumps,
 	abolish(bestRating/2),
 	calculateTurn(Field, TargetField),
-	write(Field),write(TargetField),nl.
+	write(Field),write(TargetField),nl,
+	debugCounter(Count),
+	write('Additional Moves: '),write(Count),
+	retract(debugCounter(Count)),
+	assertz(debugCounter(0)).
 	
 calculateTurn(Field, TargetField) :-
 	isOnlyOneTurnPossible(Field, TargetField),!.
@@ -33,16 +36,27 @@ calculateTurn(Field, TargetField) :-
 	%writeBestRating,
 	saveBackupToBoard.	
 
-abSearch(Color, MoveOrder,0,Rating,_,_) :-
+abSearch(Color, MoveOrder,-1,Rating,_,_) :-
+	debugCounter(Count),
+	retract(debugCounter(Count)),
+	NewCount is Count + 1,
+	assertz(debugCounter(NewCount)), 
 	setupBoard(MoveOrder),
 	calculateRating(Rating, Color, MoveOrder),
-    asserta(bestRating(MoveOrder, Rating)), !.
+	asserta(bestRating(MoveOrder, Rating)), !.
+
+abSearch(Color, MoveOrder,0,Rating,_,_) :-
+	setupBoard(MoveOrder),
+	writeAllPossibleDraftsFor(Color, MoveOrder),
+	not(hasPossibleJumps(MoveOrder)),
+	calculateRating(Rating, Color, MoveOrder),
+	asserta(bestRating(MoveOrder, Rating)), !.
 
 abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
+	setupBoard(MoveOrder),
+	writeAllPossibleDraftsForIfNeeded(Color, MoveOrder),
 	enemy(Color, EnemyColor),
 	assertz(bestRating(MoveOrder, Alpha)),
-	setupBoard(MoveOrder),
-	writeAllPossibleDraftsFor(Color,MoveOrder),
 	checkHasMovesOrJumps(MoveOrder),
 	getNewMoveOrder(MoveOrder, Draft),
 	append(MoveOrder,[Draft],NewMoveOrder),
@@ -72,7 +86,7 @@ coolStuff(EnemyColor, MoveOrder, Rating, NewMoveOrder, Depth, Beta) :-
 	V > Best,
 	saveNewBestRating(MoveOrder, V),
 	V >= Beta,
-	Rating is V.
+	Rating is V.	
 	
 nextLayer(EnemyColor, NewMoveOrder, V, Depth,Best,Beta) :-
 	NewDepth is Depth - 1,

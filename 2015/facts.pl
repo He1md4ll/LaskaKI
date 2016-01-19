@@ -10,6 +10,10 @@
         bestRating/2.
 :- dynamic
 		aiCalculationTime/1.
+:- dynamic
+		debugCounter/1.		
+		
+debugCounter(0).		
 		
 % Values for evaluation of rating
 soldierValue(white, 20).
