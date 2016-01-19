@@ -20,13 +20,13 @@ debugCounter(0).
 distanceCounter(0).		
 		
 % Values for evaluation of rating
-soldierValue(20).
-generalValue(65).
-jailedSoldierValue(0).
-jailedJailedSoldierValue(0).
-moveValue(0).
-jumpValue(0).
-distanceValue(10).											                   
+soldierValue(35).
+generalValue(100).
+jailedSoldierValue(10).
+jailedJailedSoldierValue(2).
+moveValue(1).
+jumpValue(3).
+distanceValue(5).											                   
         
 aiCalculationTime(0).        
         

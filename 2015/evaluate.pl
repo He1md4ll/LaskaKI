@@ -4,71 +4,46 @@
 %	In Tiefe 0 auf Jump überprüfen, dann 1 weiter rechnen
 %	BRANCH: ReuseMoveOrder, MoveOrder wiederverwenden -> gemachten Zug aus Order löschen, Rest wiederverwenden
 calculateRating(Rating, Color, MoveOrder) :-
-   enemy(Color, EnemyColor),   
-   aggregate_all(count, board(_,[black|_]), S),
-   aggregate_all(count, board(_,[white|_]), W),
-   aggregate_all(count, board(_,[red|_]), R),
-   aggregate_all(count, board(_,[green|_]), G),
-   aggregate_all(count, board(_,[_,black|_]), JS), % gefangene Schwarze an erster Position
-   aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
-   aggregate_all(count, board(_,[_,_,black|_]), JJS), % gefangene Schwarze an zweiter Position
-   aggregate_all(count, board(_,[_,_,white|_]), JJW), % gefangene Weisse an zweiter Position
-   %countDistance(Color),
-   %distanceCounter(Distance),!,
-   append(MoveOrder, [my], MyMoveOrder),
-   writeAllPossibleDraftsWithoutZugzwangFor(Color,MyMoveOrder),
-   (
-	   hasPossibleMoves(MyMoveOrder),
-	   aggregate_all(count, possibleMove(MyMoveOrder,_,_), M)
-   ;
-	   M is 0
-   ),
-   (
-   	   hasPossibleJumps(MyMoveOrder),
-	   aggregate_all(count, possibleJump(MyMoveOrder,_,_,_), J)
-   ;
-   	   J is 0
-   ),
-   append(MoveOrder, [oppo], OppoMoveOrder),
-   writeAllPossibleDraftsWithoutZugzwangFor(EnemyColor, OppoMoveOrder),
-   (
-	   hasPossibleMoves(OppoMoveOrder),
-	   aggregate_all(count, possibleMove(OppoMoveOrder,_,_), OM)
-   ;
-       OM is 0
-   ),
-   (
-	   hasPossibleJumps(OppoMoveOrder),
-	   aggregate_all(count, possibleJump(OppoMoveOrder,_,_,_), OJ)
-   ;
-       OJ is 0
-   ),				
-   (
-	   OM == 0, 
-	   OJ == 0, 
-	   Rating is 5000
-   ;
-   	   soldierValue(SV),
-   	   generalValue(GV),
-   	   jailedSoldierValue(JSV),
-   	   jailedJailedSoldierValue(JJSV),
-   	   moveValue(MV),
-   	   jumpValue(JV),
-   	   %distanceValue(DV),
-   	   FigureValue is SV*(S-W) + GV*(R-G) + JSV*(JS-JW) + JJSV*(JJS-JJW),
-   	   MoveValue is MV*(M-OM),
-   	   JumpValue is JV*(J-OJ),
-   	   DistanceValue is 0,
-   	   (
-   	       Color == black,
-   	       Rating is FigureValue + MoveValue + JumpValue + DistanceValue
-   	   ;
-   	   	  Rating is (MoveValue + JumpValue + DistanceValue) - FigureValue 
-   	   )
-   ),
-   !.
+	enemy(Color, EnemyColor),   
+	aggregate_all(count, board(_,[black|_]), S),
+	aggregate_all(count, board(_,[white|_]), W),
+	aggregate_all(count, board(_,[red|_]), R),
+	aggregate_all(count, board(_,[green|_]), G),
+	aggregate_all(count, board(_,[_,black|_]), JS), % gefangene Schwarze an erster Position
+	aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
+	aggregate_all(count, board(_,[_,_,black|_]), JJS), % gefangene Schwarze an zweiter Position
+	aggregate_all(count, board(_,[_,_,white|_]), JJW), % gefangene Weisse an zweiter Position
+	countDistance(Color),
+	distanceCounter(Distance),
+	append(MoveOrder, [my], MyMoveOrder),
+	writeAllPossibleDraftsWithoutZugzwangFor(Color,MyMoveOrder),
+	countMovesFor(MyMoveOrder, M),
+	countJumpsFor(MyMoveOrder, J),
+	append(MoveOrder, [oppo], OppoMoveOrder),
+	writeAllPossibleDraftsWithoutZugzwangFor(EnemyColor, OppoMoveOrder),
+	countMovesFor(OppoMoveOrder, OM),
+	countJumpsFor(OppoMoveOrder, OJ),
+	not(opponentHasNoMovesNorJumps(OM,OJ)),			
+	soldierValue(SV),
+	generalValue(GV),
+	jailedSoldierValue(JSV),
+	jailedJailedSoldierValue(JJSV),
+	moveValue(MV),
+	jumpValue(JV),
+	distanceValue(DV),
+	FigureValue is SV*(S-W) + GV*(R-G) + JSV*(JS-JW) + JJSV*(JJS-JJW),
+	MoveValue is MV*(M-OM),
+	JumpValue is JV*(J-OJ),
+	DistanceValue is DV*Distance,
+	accumulateRating(Color, Rating, FigureValue, MoveValue, JumpValue, DistanceValue),
+	!.
+   
+calculateRating(Rating, _, _) :-
+   Rating is 5000,!.
    
 countDistance(Color) :-
+	retract(distanceCounter(_)),
+	asserta(distanceCounter(0)),
 	enemy(Color, EnemyColor),
 	jump(Field,OverField,TargetField,Color),
 	board(Field,[Color|_]),
@@ -80,3 +55,27 @@ countDistance(Color) :-
 	asserta(distanceCounter(NewCounter)),
 	fail.
 countDistance(_).
+
+countMovesFor(MoveOrder, M) :-
+	hasPossibleMoves(MoveOrder),
+	aggregate_all(count, possibleMove(MoveOrder,_,_), M).
+
+countMovesFor(_, M) :-   
+	M is 0.
+	
+countJumpsFor(MoveOrder, J) :-
+	hasPossibleJumps(MoveOrder),
+	aggregate_all(count, possibleJump(MoveOrder,_,_,_), J).
+	
+countJumpsFor(_, J) :-
+	J is 0.
+	
+accumulateRating(black, Rating, FigureValue, MoveValue, JumpValue, DistanceValue) :-	
+	Rating is FigureValue + MoveValue + JumpValue + DistanceValue.
+	
+accumulateRating(white, Rating, FigureValue, MoveValue, JumpValue, DistanceValue) :-
+	Rating is (MoveValue + JumpValue + DistanceValue) - FigureValue.
+	
+opponentHasNoMovesNorJumps(OM,OJ) :-
+	OM == 0,
+	OJ == 0.
