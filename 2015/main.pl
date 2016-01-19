@@ -24,8 +24,8 @@ start(AiColor) :-
         changeCurrentColor(Color),
         fail.
         
-checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),abort.
-checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),abort.
+checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),sleep(10),halt.
+checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),sleep(10),halt.
 
 getTurnFor(Color, Field, TargetField) :-
 		aiColor(AiColor),
