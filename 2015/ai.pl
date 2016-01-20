@@ -26,7 +26,7 @@ getBestTurn(Field, TargetField) :-
 	%assertz(debugCounter(0))
 	.
 	
-calculateTurn(Field, TargetField) :-
+calculateTurn(Field, TargetField, 'Schlagzwang') :-
 	isOnlyOneTurnPossible(Field, TargetField),!.
 	
 calculateTurn(Field, TargetField, Rating) :-

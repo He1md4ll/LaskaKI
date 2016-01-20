@@ -11,22 +11,29 @@
 :- dynamic
 		aiCalculationTime/1.
 :- dynamic
-		distanceCounter/1.			
+		distanceCounter/1.	
 :- dynamic
-		debugCounter/1.		
+		debugCounter/1.
+		
+% Values for evaluation of rating			
+:- dynamic
+		soldierValue/1.	
+:- dynamic
+		generalValue/1.
+:- dynamic
+		jailedSoldierValue/1.
+:- dynamic
+		jailedJailedSoldierValue/1.
+:- dynamic
+		moveValue/1.
+:- dynamic
+		jumpValue/1.	
+:- dynamic
+		distanceValue/1.														
 		
 debugCounter(0).
 
-distanceCounter(0).		
-		
-% Values for evaluation of rating
-soldierValue(35).
-generalValue(100).
-jailedSoldierValue(10).
-jailedJailedSoldierValue(2).
-moveValue(1).
-jumpValue(3).
-distanceValue(10).											                   
+distanceCounter(0).										                   
         
 aiCalculationTime(0).        
         
