@@ -45,8 +45,8 @@ countDistance(Color) :-
 	retract(distanceCounter(_)),
 	asserta(distanceCounter(0)),
 	relatedColor(Color, GeneralColor),
-	jump(Field,OverField,TargetField,GeneralColor),
-	checkBoardForDistance(GeneralColor, Field, OverField, TargetField),
+	board(Field,[GeneralColor|_]),
+	checkBoardForDistance(GeneralColor, Field),
 	distanceCounter(Counter),
 	retract(distanceCounter(Counter)),
 	NewCounter is Counter + 1,
@@ -54,18 +54,18 @@ countDistance(Color) :-
 	fail.
 countDistance(_).
 
-checkBoardForDistance(GeneralColor, Field, OverField, TargetField) :-
+checkBoardForDistance(GeneralColor, Field) :-
 	relatedColor(Color, GeneralColor),
 	enemy(Color, EnemyColor),
-	board(Field,[GeneralColor|_]),
+	jump(Field,OverField,TargetField,GeneralColor),
 	board(OverField,[]),
-	board(TargetField,[EnemyColor|_]),!.
+	board(TargetField,[EnemyColor|_]).
 	
-checkBoardForDistance(GeneralColor, Field, OverField, TargetField) :-
+checkBoardForDistance(GeneralColor, Field) :-
 	relatedColor(Color, GeneralColor),
 	enemy(Color, EnemyColor),
 	relatedColor(EnemyColor, EnemyGeneralColor),
-	board(Field,[GeneralColor|_]),
+	jump(Field,OverField,TargetField,GeneralColor),
 	board(OverField,[]),
 	board(TargetField,[EnemyGeneralColor|_]).	
 
@@ -73,7 +73,7 @@ countMovesFor(MoveOrder, M) :-
 	hasPossibleMoves(MoveOrder),
 	aggregate_all(count, possibleMove(MoveOrder,_,_), M).
 
-countMovesFor(_, M) :-   
+countMovesFor(_, M) :-
 	M is 0.
 	
 countJumpsFor(MoveOrder, J) :-
