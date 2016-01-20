@@ -37,8 +37,8 @@ writeAiValues(SV, GV, JSV, JJSV, MV, JV, DV) :-
 	asserta(jumpValue(JV)),
 	asserta(distanceValue(DV)). 
         
-checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),sleep(10),halt.
-checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),sleep(10),halt.
+checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),sleep(10),abort.
+checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),sleep(10),abort.
 
 getTurnFor(Color, Field, TargetField) :-
 		aiColor(AiColor),
@@ -59,9 +59,9 @@ checkPlayerDraft(Field,TargetField) :-
 	write('Falsche Eingabe!'),nl,fail.       
         
 aiDraft(Field, TargetField) :-
-	statistics(walltime,_),
+	statistics(runtime,_),
 	getBestTurn(Field, TargetField),
-	statistics(walltime,[_,NewTime]),
+	statistics(runtime,[_,NewTime]),
 	aiCalculationTime(UsedTime),
 	NewUsedTime is NewTime + UsedTime,
 	asserta(aiCalculationTime(NewUsedTime)),retract(aiCalculationTime(UsedTime)),

@@ -1,14 +1,30 @@
-getDepth(Depth):-   
+getDepth(Depth) :-
+	aiCalculationTime(AiTime),
+	AiTime > 280000, 
+	Depth is 2, !.
+	
+getDepth(Depth) :-
+	aiCalculationTime(AiTime),
+	AiTime > 270000, 
+	Depth is 3, !.
+	
+getDepth(Depth) :-
+	aiCalculationTime(AiTime),
+	AiTime > 250000, 
+	Depth is 4, !.
+	
+getDepth(Depth) :-
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
 	R + G > 3,
-	Depth is 6,!
-	; 
+	Depth is 5, !.		
+
+getDepth(Depth):-
 	aggregate_all(count, board(_,[]), E),
 	(                                       
-		E > 12, Depth is 5
+		E > 14, Depth is 5
 	;	
-		E > 10, Depth is 6
+		E > 12, Depth is 6
 	;
 		E > 8, Depth is 7
 	;
@@ -32,6 +48,7 @@ calculateTurn(Field, TargetField, 'Schlagzwang') :-
 calculateTurn(Field, TargetField, Rating) :-
 	aiColor(AiColor),
 	getDepth(Depth),
+	write('Depth: '),write(Depth),nl,
 	saveBoardToBackup,
 	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
 	getBest(Field, TargetField, Rating),

@@ -3,6 +3,9 @@
 %	Bei Jump Tiefe nicht verringern, da Zugzwang
 %	In Tiefe 0 auf Jump überprüfen, dann 1 weiter rechnen
 %	BRANCH: ReuseMoveOrder, MoveOrder wiederverwenden -> gemachten Zug aus Order löschen, Rest wiederverwenden
+%	Ersten Zug eintragen
+%	Depth -1 für hohe Suchtiefen ausschalten
+%	Am Ende Tiefer als -1 bei Jumps rechnen
 calculateRating(Rating, Color, MoveOrder) :-
 	enemy(Color, EnemyColor),   
 	aggregate_all(count, board(_,[black|_]), S),
