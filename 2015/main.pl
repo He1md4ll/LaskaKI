@@ -37,8 +37,8 @@ writeAiValues(SV, GV, JSV, JJSV, MV, JV, DV) :-
 	asserta(jumpValue(JV)),
 	asserta(distanceValue(DV)). 
         
-checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),sleep(10),abort.
-checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),sleep(10),abort.
+checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),sleep(10),halt.
+checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),sleep(10),halt.
 
 getTurnFor(Color, Field, TargetField) :-
 		aiColor(AiColor),

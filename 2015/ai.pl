@@ -1,23 +1,18 @@
 getDepth(Depth) :-
 	aiCalculationTime(AiTime),
 	AiTime > 280000, 
-	Depth is 2, !.
-	
-getDepth(Depth) :-
-	aiCalculationTime(AiTime),
-	AiTime > 270000, 
-	Depth is 3, !.
+	Depth is 4, !.
 	
 getDepth(Depth) :-
 	aiCalculationTime(AiTime),
 	AiTime > 250000, 
-	Depth is 4, !.
+	Depth is 5, !.
 	
 getDepth(Depth) :-
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G), 
 	R + G > 3,
-	Depth is 5, !.		
+	Depth is 5, !.
 
 getDepth(Depth):-
 	aggregate_all(count, board(_,[]), E),
@@ -28,31 +23,31 @@ getDepth(Depth):-
 	;
 		E > 8, Depth is 7
 	;
-		Depth is 8
+		Depth is 4
 	),!.
 
 getBestTurn(Field, TargetField) :-
 	abolish(bestRating/2),
-	calculateTurn(Field, TargetField, Rating),
+	calculateTurn(Field, TargetField, Depth, Rating),
 	write(Field),write(TargetField),nl,
 	%debugCounter(Count),
 	%write('Additional Moves: '),write(Count),nl,
-	write('Rating: '),write(Rating),nl
+	write('Rating: '),write(Rating),nl,
+	write('Depth: '),write(Depth),nl
 	%retract(debugCounter(Count)),
 	%assertz(debugCounter(0))
 	.
 	
-calculateTurn(Field, TargetField, 'Schlagzwang') :-
+calculateTurn(Field, TargetField, _, 'Schlagzwang') :-
 	isOnlyOneTurnPossible(Field, TargetField),!.
 	
-calculateTurn(Field, TargetField, Rating) :-
+calculateTurn(Field, TargetField, Depth, Rating) :-
 	aiColor(AiColor),
 	getDepth(Depth),
-	write('Depth: '),write(Depth),nl,
 	saveBoardToBackup,
 	abSearch(AiColor,[], Depth, Rating, -10000, 10000),
 	getBest(Field, TargetField, Rating),
-	%writeBestRating,
+	writeBestRating,
 	saveBackupToBoard.	
 
 abSearch(Color, MoveOrder,-1,Rating,_,_) :-
@@ -66,8 +61,8 @@ abSearch(Color, MoveOrder,-1,Rating,_,_) :-
 
 abSearch(Color, MoveOrder,0,Rating,_,_) :-
 	setupBoard(MoveOrder),
-	writeAllPossibleDraftsFor(Color, MoveOrder),
-	not(hasPossibleJumps(MoveOrder)),
+	%writeAllPossibleDraftsFor(Color, MoveOrder),
+	%not(hasPossibleJumps(MoveOrder)),
 	calculateRating(Rating, Color, MoveOrder),
 	asserta(bestRating(MoveOrder, Rating)), !.
 
@@ -104,8 +99,9 @@ coolStuff(EnemyColor, MoveOrder, Rating, NewMoveOrder, Depth, Beta) :-
 	nextLayer(EnemyColor, NewMoveOrder, V, Depth,Best,Beta),!,
 	V > Best,
 	saveNewBestRating(MoveOrder, V),
-	V >= Beta,
-	Rating is V.	
+	V > Beta,
+	Rating is V,
+	retract(bestRating(MoveOrder, V)).
 	
 nextLayer(EnemyColor, NewMoveOrder, V, Depth,Best,Beta) :-
 	NewDepth is Depth - 1,
@@ -132,7 +128,9 @@ getNewMoveOrder(MoveOrder, Draft) :-
 
 getBest(Field, TargetField, Rating) :-
 	NegaRating is Rating * -1,
-	bestRating([Draft|[]], NegaRating),
+	%bestRating([Draft|[]], NegaRating),
+	findall(Draft, bestRating([Draft|[]], NegaRating),List),
+	nth0(0, List, Draft),
 	translateDraft(Draft, Field, TargetField),
 	!.
 	
@@ -183,5 +181,5 @@ writeBestRating :-
 	checkMoveOrder(MoveOrder),
 	write('MoveOrder: '), write(MoveOrder),write(' Rating: '),write(Rating),nl,fail.
 writeBestRating.
-checkMoveOrder([e8d9 | _]).
+checkMoveOrder([_,_,_| []]).
 

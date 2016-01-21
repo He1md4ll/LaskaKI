@@ -4,8 +4,9 @@
 %	In Tiefe 0 auf Jump überprüfen, dann 1 weiter rechnen
 %	BRANCH: ReuseMoveOrder, MoveOrder wiederverwenden -> gemachten Zug aus Order löschen, Rest wiederverwenden
 %	Ersten Zug eintragen
-%	Depth -1 für hohe Suchtiefen ausschalten
-%	Am Ende Tiefer als -1 bei Jumps rechnen
+%	Depth -1 geht nicht, da Ratings nicht mehr Vergleichbar
+%	Alpha muss gelöscht werden (e8d9 immer noch drin)
+
 calculateRating(Rating, Color, MoveOrder) :-
 	enemy(Color, EnemyColor),   
 	aggregate_all(count, board(_,[black|_]), S),
