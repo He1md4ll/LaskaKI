@@ -23,7 +23,7 @@ getDepth(Depth):-
         ;
                 E > 8, Depth is 7
         ;
-                Depth is 4
+                Depth is 8
         ),!.
 
 getBestTurn(Field, TargetField) :-
