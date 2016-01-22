@@ -23,7 +23,7 @@ getDepth(Depth):-
         ;
                 E > 8, Depth is 7
         ;
-                Depth is 8
+                Depth is 4
         ),!.
 
 getBestTurn(Field, TargetField) :-
@@ -46,7 +46,7 @@ calculateTurn(Field, TargetField, Depth, Rating) :-
         getDepth(Depth),
         saveBoardToBackup,
         abSearch(AiColor,[], Depth, Rating, -10000, 10000),
-        getBest(Field, TargetField, Rating),
+        getBest(Field, TargetField, Rating, Depth),
         %writeBestRating,
         saveBackupToBoard.
 
@@ -65,12 +65,8 @@ abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
         append(MoveOrder,[Draft],NewMoveOrder),
         coolStuff(EnemyColor, MoveOrder, Rating, NewMoveOrder, Depth, Beta).
         
-abSearch(_, MoveOrder,_,Rating,Alpha,_) :-
-        bestRating(MoveOrder,Rating),
-        deleteAlphaMoveOrderRating(MoveOrder, Alpha).
-        
-deleteAlphaMoveOrderRating(MoveOrder, Alpha) :-
-        retract(bestRating(MoveOrder,Alpha)).
+abSearch(_, MoveOrder,_,Rating,_,_) :-
+        bestRating(MoveOrder,Rating).
         
 deleteAlphaMoveOrderRating(_, _).       
         
@@ -114,13 +110,26 @@ getNewMoveOrder(MoveOrder, Draft) :-
         possibleJump(MoveOrder, Field, _, TargetField),
         atom_concat(Field,TargetField, Draft).
 
-getBest(Field, TargetField, Rating) :-
+getBest(Field, TargetField, Rating, Depth) :-
         NegaRating is Rating * -1,
-        %bestRating([Draft|[]], NegaRating),
         findall(Draft, bestRating([Draft|[]], NegaRating),List),
-        nth0(0, List, Draft),
+        length(List, Length),
+        Length2 is Length - 1,
+        random_between(0, Length2, Number),
+        nth0(Number, List, Draft),
+        checkIfDraftIsRight(Rating, Depth -1, [Draft]),
         translateDraft(Draft, Field, TargetField),
         !.
+        
+checkIfDraftIsRight(Raiting, Depth, MoveOrder)  :-
+        append(MoveOrder,NextDraft,NewMoveOrder),
+        bestRating(NewMoveOrder,Raiting),
+        NextDraft = [_],
+        NegaRaiting is Raiting * -1,
+        NewDepth is Depth -1,
+        checkIfDraftIsRight(NegaRaiting,NewDepth, NewMoveOrder).
+checkIfDraftIsRight(_, 0, _).
+
         
 setupBoard(MoveOrder) :- 
         saveBackupToBoard,
