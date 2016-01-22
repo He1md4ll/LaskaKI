@@ -115,16 +115,21 @@ getBest(Field, TargetField, Rating, Depth) :-
         findall(Draft, bestRating([Draft|[]], NegaRating),List),
         length(List, Length),
         Length2 is Length - 1,
-        getRandomTurn(0, Length2, Number),
+        getRandomTurn(Length2, Number, Rating),
         nth0(Number, List, Draft),
         checkIfDraftIsRight(Rating, Depth -1, [Draft]),
         translateDraft(Draft, Field, TargetField),
         !.
-getRandomTurn(0, Length2, Number):-
+
+getRandomTurn(_, 0,5000).  %Bei Sieg oder Niederlage kein Random
+getRandomTurn(_, 0,-5000). %Sondern immer den ersten Zug.
+getRandomTurn(Length2, Number,_):-
         random_between(0, Length2, Number).
-getRandomTurn(0, Length2, Number) :-
+getRandomTurn(Length2, Number,_) :-
         getRandomTurn(0, Length2, Number).
-        
+
+checkIfDraftIsRight(5000,_,_).  %Bei Sieg oder Niederlage keine ueberpruefung
+checkIfDraftIsRight(-5000,_,_).
 checkIfDraftIsRight(Raiting, Depth, MoveOrder)  :-
         append(MoveOrder,NextDraft,NewMoveOrder),
         bestRating(NewMoveOrder,Raiting),
