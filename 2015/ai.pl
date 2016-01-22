@@ -115,11 +115,15 @@ getBest(Field, TargetField, Rating, Depth) :-
         findall(Draft, bestRating([Draft|[]], NegaRating),List),
         length(List, Length),
         Length2 is Length - 1,
-        random_between(0, Length2, Number),
+        getRandomTurn(0, Length2, Number),
         nth0(Number, List, Draft),
         checkIfDraftIsRight(Rating, Depth -1, [Draft]),
         translateDraft(Draft, Field, TargetField),
         !.
+getRandomTurn(0, Length2, Number):-
+        random_between(0, Length2, Number).
+getRandomTurn(0, Length2, Number) :-
+        getRandomTurn(0, Length2, Number).
         
 checkIfDraftIsRight(Raiting, Depth, MoveOrder)  :-
         append(MoveOrder,NextDraft,NewMoveOrder),
