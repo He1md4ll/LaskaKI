@@ -29,7 +29,12 @@
 :- dynamic
 		jumpValue/1.	
 :- dynamic
-		distanceValue/1.														
+		distanceValue/1.	
+:- dynamic
+		jailedOpponents/1.
+:- dynamic
+		jailedJailedOpponents/1.
+
 		
 debugCounter(0).
 

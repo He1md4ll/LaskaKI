@@ -29,6 +29,21 @@ calculateRating(Rating, Color, MoveOrder) :-
 	JailedWhite is JailedWhiteSoldier + JailedWhiteGeneral,
 	JailedJailedWhite is JailedJailedWhiteSoldier + JailedJailedWhiteGeneral,
 	
+	aggregate_all(count, board(_,[white,black|_]), JailedOpponentsWhiteSoldier), %
+	aggregate_all(count, board(_,[white,black,black|_]), JailedJailedOpponentsWhiteSoldier),
+	aggregate_all(count, board(_,[green,black|_]), JailedOpponentsWhiteGeneral), %
+	aggregate_all(count, board(_,[green,black,black|_]), JailedJailedOpponentsWhiteGeneral),
+	
+	aggregate_all(count, board(_,[black,white|_]), JailedOpponentsBlackSoldier),
+	aggregate_all(count, board(_,[black,white,white|_]), JailedJailedOpponentsBlackSoldier),
+	aggregate_all(count, board(_,[red,white|_]), JailedOpponentsBlackGeneral),
+	aggregate_all(count, board(_,[red,white,white|_]), JailedJailedOpponentsBlackGeneral),
+		
+	JailedOpponentsBlack is JailedOpponentsBlackSoldier + JailedOpponentsBlackGeneral,
+	JailedJailedOpponentsBlack is JailedJailedOpponentsBlackSoldier + JailedJailedOpponentsBlackGeneral,
+	JailedOpponentsWhite is JailedOpponentsWhiteSoldier + JailedOpponentsWhiteGeneral,
+	JailedJailedOpponentsWhite is JailedJailedOpponentsWhiteSoldier + JailedJailedOpponentsWhiteGeneral,
+	
 	countDistance(Color),
 	distanceCounter(Distance),
 	append(MoveOrder, [my], MyMoveOrder),
@@ -47,7 +62,9 @@ calculateRating(Rating, Color, MoveOrder) :-
 	moveValue(MV),
 	jumpValue(JV),
 	distanceValue(DV),
-	FigureValue is SV*(S-W) + GV*(R-G) + JSV*((JailedBlack-JailedJailedBlack)-(JailedWhite-JailedJailedWhite)) + JJSV*(JailedJailedBlack-JailedJailedWhite),
+	jailedOpponents(JOV),
+	jailedJailedOpponents(JJOV),
+	FigureValue is SV*(S-W) + GV*(R-G) + JSV*((JailedBlack-JailedJailedBlack)-(JailedWhite-JailedJailedWhite)) + JJSV*(JailedJailedBlack-JailedJailedWhite) + JOV*((JailedOpponentsBlack-JailedJailedOpponentsBlack)-(JailedOpponentsWhite-JailedJailedOpponentsWhite)) + JJOV*(JailedJailedOpponentsBlack-JailedJailedOpponentsWhite),
 	MoveValue is MV*(M-OM),
 	JumpValue is JV*(J-OJ),
 	DistanceValue is DV*Distance,

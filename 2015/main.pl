@@ -11,10 +11,10 @@ currentTurn(1).
 currentTurn(X) :- currentTurn(Y), X is Y+1.
 
 start(AiColor) :-
-        start(AiColor, 35, 100, 10, 2, 0, 0, 50).
+        start(AiColor, 35, 100, 17, 43,-3,-11, 0, 0, 50).
 
-start(AiColor, SV, GV, JSV, JJSV, MV, JV, DV) :-
-                writeAiValues(SV, GV, JSV, JJSV, MV, JV, DV),
+start(AiColor, SV, GV, JSV, JJSV,JOV,JJOV, MV, JV, DV) :-
+                writeAiValues(SV, GV, JSV, JJSV,JOV,JJOV, MV, JV, DV),
                 asserta(aiColor(AiColor)),
         currentTurn(N),write('-> '),write(N),nl,
         currentColor(Color),
@@ -28,14 +28,16 @@ start(AiColor, SV, GV, JSV, JJSV, MV, JV, DV) :-
         changeCurrentColor(Color),
         fail.
   
-writeAiValues(SV, GV, JSV, JJSV, MV, JV, DV) :-
+writeAiValues(SV, GV, JSV, JJSV,JOV,JJOV, MV, JV, DV) :-
         asserta(soldierValue(SV)),
         asserta(generalValue(GV)),
         asserta(jailedSoldierValue(JSV)),
         asserta(jailedJailedSoldierValue(JJSV)),
         asserta(moveValue(MV)),
         asserta(jumpValue(JV)),
-        asserta(distanceValue(DV)). 
+        asserta(distanceValue(DV)),
+		asserta(jailedOpponents(JOV)),
+		asserta(jailedJailedOpponents(JJOV)). 
         
 checkIsWinner(white) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('Black wins.'),sleep(10),halt.
 checkIsWinner(black) :- \+hasPossibleJumps([]),\+hasPossibleMoves([]),write('White wins.'),sleep(10),halt.
