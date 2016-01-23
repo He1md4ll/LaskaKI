@@ -13,10 +13,22 @@ calculateRating(Rating, Color, MoveOrder) :-
 	aggregate_all(count, board(_,[white|_]), W),
 	aggregate_all(count, board(_,[red|_]), R),
 	aggregate_all(count, board(_,[green|_]), G),
-	aggregate_all(count, board(_,[_,black|_]), JS), % gefangene Schwarze an erster Position
-	aggregate_all(count, board(_,[_,white|_]), JW), % gefangene Weisse an erster Position
-	aggregate_all(count, board(_,[_,_,black|_]), JJS), % gefangene Schwarze an zweiter Position
-	aggregate_all(count, board(_,[_,_,white|_]), JJW), % gefangene Weisse an zweiter Position
+	
+	aggregate_all(count, board(_,[black,black|_]), JailedBlackSoldier), %
+	aggregate_all(count, board(_,[black,black,black|_]), JailedJailedBlackSoldier),
+	aggregate_all(count, board(_,[red,black|_]), JailedBlackGeneral), %
+	aggregate_all(count, board(_,[red,black,black|_]), JailedJailedBlackGeneral),
+	
+	aggregate_all(count, board(_,[white,white|_]), JailedWhiteSoldier),
+	aggregate_all(count, board(_,[white,white,white|_]), JailedJailedWhiteSoldier),
+	aggregate_all(count, board(_,[green,white|_]), JailedWhiteGeneral),
+	aggregate_all(count, board(_,[green,white,white|_]), JailedJailedWhiteGeneral),
+		
+	JailedBlack is JailedBlackSoldier + JailedBlackGeneral,
+	JailedJailedBlack is JailedJailedBlackSoldier + JailedJailedBlackGeneral,
+	JailedWhite is JailedWhiteSoldier + JailedWhiteGeneral,
+	JailedJailedWhite is JailedJailedWhiteSoldier + JailedJailedWhiteGeneral,
+	
 	countDistance(Color),
 	distanceCounter(Distance),
 	append(MoveOrder, [my], MyMoveOrder),
@@ -35,7 +47,7 @@ calculateRating(Rating, Color, MoveOrder) :-
 	moveValue(MV),
 	jumpValue(JV),
 	distanceValue(DV),
-	FigureValue is SV*(S-W) + GV*(R-G) + JSV*(JS-JW) + JJSV*(JJS-JJW),
+	FigureValue is SV*(S-W) + GV*(R-G) + JSV*((JailedBlack-JailedJailedBlack)-(JailedWhite-JailedJailedWhite)) + JJSV*(JailedJailedBlack-JailedJailedWhite),
 	MoveValue is MV*(M-OM),
 	JumpValue is JV*(J-OJ),
 	DistanceValue is DV*Distance,
