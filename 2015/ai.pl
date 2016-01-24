@@ -120,7 +120,7 @@ getBest(Field, TargetField, Rating, Depth) :-
         checkIfDraftIsRight(Rating, Depth -1, [Draft]),
         translateDraft(Draft, Field, TargetField),
         !.
-
+getRandomTurn(_, 0,_).
 getRandomTurn(_, 0,5000).  %Bei Sieg oder Niederlage kein Random
 getRandomTurn(_, 0,-5000). %Sondern immer den ersten Zug.
 getRandomTurn(Length2, Number,_):-
@@ -187,5 +187,5 @@ writeBestRating :-
         checkMoveOrder(MoveOrder),
         write('MoveOrder: '), write(MoveOrder),write(' Rating: '),write(Rating),nl,fail.
 writeBestRating.
-checkMoveOrder([_,_,_| []]).
+checkMoveOrder([e8d9, _]).
 
