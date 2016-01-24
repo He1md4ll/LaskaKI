@@ -1,8 +1,8 @@
+﻿:- dynamic
+        board/2.
+        
 :- dynamic
-	board/2.
-	
-:- dynamic
-	backupBoard/2.	
+        backupBoard/2.  
         
 board(a4,[white]).
 board(a6,[white]).
@@ -119,7 +119,7 @@ schreibeboard([Kopf|Rest]) :-   % besetztes Feld
     concat_atom(UiRest,Gefangene),
     write(Gefangene), % alle Steine unter dem Kopf
     atom_length(Gefangene,Len),
-    Leer is 8 - Len,
+    Leer is 18 - Len,
     fuellen(Leer,Fueller),
     write(Fueller),   % Leerzeichen für alle Pos. < 9
     write(' ').       % Abgrenzung zum Nachbarfeld
@@ -155,5 +155,15 @@ fuellen(5,'     ').
 fuellen(6,'      ').
 fuellen(7,'       ').
 fuellen(8,'        ').
+fuellen(9,'        ').
+fuellen(10,'        ').
+fuellen(11,'        ').
+fuellen(12,'        ').
+fuellen(13,'        ').
+fuellen(14,'        ').
+fuellen(15,'        ').
+fuellen(16,'        ').
+fuellen(17,'        ').
+fuellen(18,'        ').
 
 
