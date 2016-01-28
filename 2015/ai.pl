@@ -1,23 +1,23 @@
 getDepth(Depth) :-
         aiCalculationTime(AiTime),
         AiTime > 280000, 
-        Depth is 4, !.
+        Depth is 6, !.
         
 getDepth(Depth) :-
         aiCalculationTime(AiTime),
         AiTime > 250000, 
-        Depth is 5, !.
+        Depth is 7, !.
         
 getDepth(Depth) :-
         aggregate_all(count, board(_,[red|_]), R),
         aggregate_all(count, board(_,[green|_]), G), 
         R + G > 3,
-        Depth is 5, !.
+        Depth is 6, !.
 
 getDepth(Depth):-
         aggregate_all(count, board(_,[]), E),
         (                                       
-                E > 14, Depth is 5
+                E > 14, Depth is 6
         ;       
                 E > 12, Depth is 6
         ;
@@ -110,14 +110,14 @@ getNewMoveOrder(MoveOrder, Draft) :-
         possibleJump(MoveOrder, Field, _, TargetField),
         atom_concat(Field,TargetField, Draft).
 
-getBest(Field, TargetField, Rating, Depth) :-
+getBest(Field, TargetField, Rating, _) :-
         NegaRating is Rating * -1,
         findall(Draft, bestRating([Draft|[]], NegaRating),List),
         length(List, Length),
         Length2 is Length - 1,
         getRandomTurn(Length2, Number, Rating),
         nth0(Number, List, Draft),
-        checkIfDraftIsRight(Rating, Depth -1, [Draft]),
+        %checkIfDraftIsRight(Rating, Depth -1, [Draft]),
         translateDraft(Draft, Field, TargetField),
         !.
 getRandomTurn(_, 0,_).
