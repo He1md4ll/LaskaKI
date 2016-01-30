@@ -39,21 +39,35 @@ getBestTurn(Field, TargetField) :-
         .
         
 calculateTurn(Field, TargetField, _, 'Schlagzwang') :-
-        isOnlyOneTurnPossible(Field, TargetField),!.
+        isOnlyOneTurnPossible(Field, TargetField),
+        atom_concat(Field,TargetField, Draft),
+        removeFromChoosenMoverOrder(Draft),!.
         
 calculateTurn(Field, TargetField, Depth, Rating) :-
         aiColor(AiColor),
         getDepth(Depth),
         saveBoardToBackup,
+        %getBetterStartBeta(AiColor, Depth, Beta),
+        %abolish(bestRating/2),
         abSearch(AiColor,[], Depth, Rating, -10000, 10000),
         getBest(Field, TargetField, Rating, Depth),
         %writeBestRating,
         saveBackupToBoard.
 
+getBetterStartBeta2(AiColor, Depth, Beta):-
+        current_predicate(choosenMoveOrder/1),
+        choosenMoveOrder(ChoosenMoveOrder),
+        length(ChoosenMoveOrder, Length),
+        NewDepth is Depth - Length,
+        NewDepth > 0,
+        abSearch(AiColor,ChoosenMoveOrder, Depth, Beta, -10000, 10000),!.
+getBetterStartBeta2(_, _, Beta) :- Beta is 10000.
+
+
 abSearch(Color, MoveOrder,0,Rating,_,_) :-
         setupBoard(MoveOrder),
         calculateRating(Rating, Color, MoveOrder),
-        asserta(bestRating(MoveOrder, Rating)), !.
+        assertz(bestRating(MoveOrder, Rating)), !.
 
 abSearch(Color, MoveOrder,Depth,Rating,Alpha,Beta) :-
         setupBoard(MoveOrder),
@@ -81,7 +95,7 @@ checkHasMovesOrJumps(MoveOrder) :-
         
 coolStuff(EnemyColor, MoveOrder, Rating, NewMoveOrder, Depth, Beta) :-
         bestRating(MoveOrder,Best),
-        nextLayer(EnemyColor, NewMoveOrder, V, Depth,Best,Beta),!,
+        nextLayer(EnemyColor, NewMoveOrder, V, Depth, Best, Beta),!,
         V > Best,
         saveNewBestRating(MoveOrder, V),
         V >= Beta,
@@ -100,27 +114,43 @@ saveNewBestRating(MoveOrder, Rating) :-
         retract(bestRating(MoveOrder,_)),
         assertz(bestRating(MoveOrder,Rating)), !.
         
+%getNewMoveOrder([], Draft):-
+        %getFirstTurnFromLastChoosenMoveOrder(Draft).
+        
 getNewMoveOrder(MoveOrder, Draft) :-
         current_predicate(possibleMove/3),
         possibleMove(MoveOrder, Field, TargetField),
         atom_concat(Field,TargetField, Draft).
+        %\+getFirstTurnFromLastChoosenMoveOrder(Draft).
         
 getNewMoveOrder(MoveOrder, Draft) :-
         current_predicate(possibleJump/4),
         possibleJump(MoveOrder, Field, _, TargetField),
         atom_concat(Field,TargetField, Draft).
+        %\+getFirstTurnFromLastChoosenMoveOrder(Draft).
+
+getFirstTurnFromLastChoosenMoveOrder(Draft) :-
+        current_predicate(choosenMoveOrder/1),
+        choosenMoveOrder(OldMoveOrder),
+        getFirstTurnFromLastChoosenMoveOrder(Draft,OldMoveOrder).
+getFirstTurnFromLastChoosenMoveOrder(Draft,[Draft|_]).
+
 
 getBest(Field, TargetField, Rating, Depth) :-
         NegaRating is Rating * -1,
         findall(Draft, bestRating([Draft|[]], NegaRating),List),
-        length(List, Length),
-        Length2 is Length - 1,
-        getRandomTurn(Length2, Number, Rating),
-        nth0(Number, List, Draft),
-        %checkIfDraftIsRight(Rating, Depth -1, [Draft]),
+        %length(List, Length),
+        %Length2 is Length - 1,
+        %getRandomTurn(Length2, Number, Rating),
+        nth0(0, List, Draft),
+        checkIfDraftIsRight(Rating, Depth -1, [Draft], ResultMoveOrder),
+        %write(ResultMoveOrder),nl,
+        abolish(choosenMoveOrder/1),
+        asserta(choosenMoveOrder(ResultMoveOrder)),
+        removeFromChoosenMoverOrder(Draft),
         translateDraft(Draft, Field, TargetField),
         !.
-getRandomTurn(_, 0,_).
+getRandomTurn(X, X,_).
 getRandomTurn(_, 0,5000).  %Bei Sieg oder Niederlage kein Random
 getRandomTurn(_, 0,-5000). %Sondern immer den ersten Zug.
 getRandomTurn(Length2, Number,_):-
@@ -128,12 +158,12 @@ getRandomTurn(Length2, Number,_):-
 getRandomTurn(Length2, Number,_) :-
         getRandomTurn(0, Length2, Number).
 
-checkIfDraftIsRight(5000,_,_).  %Bei Sieg oder Niederlage keine ueberpruefung
-checkIfDraftIsRight(-5000,_,_).
+checkIfDraftIsRight(5000,_,_,_).  %Bei Sieg oder Niederlage keine ueberpruefung
+checkIfDraftIsRight(-5000,_,_,_).
 checkIfDraftIsRight(Raiting, Depth, MoveOrder, ResultMoveOrder)  :-
+        NextDraft = [_],
         append(MoveOrder,NextDraft,NewMoveOrder),
         bestRating(NewMoveOrder,Raiting),
-        NextDraft = [_],
         NegaRaiting is Raiting * -1,
         NewDepth is Depth -1,
         checkIfDraftIsRight(NegaRaiting,NewDepth, NewMoveOrder, ResultMoveOrder).
@@ -187,5 +217,5 @@ writeBestRating :-
         checkMoveOrder(MoveOrder),
         write('MoveOrder: '), write(MoveOrder),write(' Rating: '),write(Rating),nl,fail.
 writeBestRating.
-checkMoveOrder([e8d9, _]).
+checkMoveOrder(_).
 

@@ -1,0 +1,17 @@
+
+
+[e2d3,c4e2,f3d1,b3c4,d1b3,a4c2,e6d5,c4e6,f7d5,c6d7,e8c6,b5d7,g6f7,a6b5]
+ab hier gibt es unterschiede, KI mit letztem zug wählt e2d3 Raiting 25, andere KI wählt e2d1 Raiting 25.
+das liegt daran das beide KIs beim Zug b5d7 als beste Zugfolge [b5d7,g6f7,a6b5,e2d3,....] haben. KI_LZ nimmt also zuerst e2d3 und findet ein Raiting von 25 genau wie für e2d1. 
+Aber da e2d3 erst war wird der Zug genommen. Meiner Meinung nach ist der Zug aber deutlich schlechter
+
+Nach a6b5
+KI mit letzter zug sagt : 	[e2d3,d7e8,f7d9,c6d7,e8c6,b5d7,g4f3].
+andere sagt : 				[e2d1,d7e8,f7d9,c6d7,e8c6,b5d7,e4d3]
+
+
+Zum testesn folgendes ausführen:
+
+saveBoardToBackup.
+setupBoard([e2d3,c4e2,f3d1,b3c4,d1b3,a4c2,e6d5,c4e6,f7d5,c6d7,e8c6,b5d7,g6f7,a6b5]).
+trace, start(black).
