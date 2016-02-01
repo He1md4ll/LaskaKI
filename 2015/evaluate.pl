@@ -18,7 +18,9 @@ calculateRating(Rating, Color, MoveOrder) :-
 	aggregate_all(count, board(_,[_,_,black|_]), JJS), % gefangene Schwarze an zweiter Position
 	aggregate_all(count, board(_,[_,_,white|_]), JJW), % gefangene Weisse an zweiter Position
 	countDistance(Color),
-	distanceCounter(Distance),
+    distanceCounter(MyDistance),
+    countDistance(EnemyColor),
+    distanceCounter(EnemyDistance),
 	append(MoveOrder, [my], MyMoveOrder),
 	writeAllPossibleDraftsWithoutZugzwangFor(Color,MyMoveOrder),
 	countMovesFor(MyMoveOrder, M),
@@ -38,7 +40,7 @@ calculateRating(Rating, Color, MoveOrder) :-
 	FigureValue is SV*(S-W) + GV*(R-G) + JSV*(JS-JW) + JJSV*(JJS-JJW),
 	MoveValue is MV*(M-OM),
 	JumpValue is JV*(J-OJ),
-	DistanceValue is DV*Distance,
+	DistanceValue is DV * (MyDistance - EnemyDistance),
 	accumulateRating(Color, Rating, FigureValue, MoveValue, JumpValue, DistanceValue),
 	!.
    
