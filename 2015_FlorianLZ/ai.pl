@@ -164,8 +164,8 @@ getRandomTurn(Length2, Number,_):-
 getRandomTurn(Length2, Number,_) :-
         getRandomTurn(0, Length2, Number).
 
-checkIfDraftIsRight(5000,_,_,_).  %Bei Sieg oder Niederlage keine ueberpruefung
-checkIfDraftIsRight(-5000,_,_,_).
+checkIfDraftIsRight(5000,_,_,[]).  %Bei Sieg oder Niederlage keine ueberpruefung
+checkIfDraftIsRight(-5000,_,_,[]).
 checkIfDraftIsRight(Raiting, Depth, MoveOrder, ResultMoveOrder)  :-
         NextDraft = [_],
         append(MoveOrder,NextDraft,NewMoveOrder),
