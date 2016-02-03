@@ -1,12 +1,18 @@
 getDepth(Depth) :-
         aiCalculationTime(AiTime),
         AiTime > 280000, 
-        Depth is 6, !.
+        Depth is 4, !.
         
 getDepth(Depth) :-
         aiCalculationTime(AiTime),
         AiTime > 250000, 
-        Depth is 6, !.
+        Depth is 5, !.
+		
+getDepth(Depth) :-
+        aggregate_all(count, board(_,[red|_]), R),
+        aggregate_all(count, board(_,[green|_]), G), 
+        R + G > 5,
+        Depth is 5, !.
         
 getDepth(Depth) :-
         aggregate_all(count, board(_,[red|_]), R),
@@ -17,8 +23,6 @@ getDepth(Depth) :-
 getDepth(Depth):-
         aggregate_all(count, board(_,[]), E),
         (                                       
-                E > 14, Depth is 6
-        ;       
                 E > 12, Depth is 6
         ;
                 E > 8, Depth is 7
