@@ -1,12 +1,12 @@
-% Moegliche weitere Bewertungen:
-%	Abstand zum Gegner: 1 Feld besser als 2 oder mehr
-%	Bei Jump Tiefe nicht verringern, da Zugzwang
-%	In Tiefe 0 auf Jump überprüfen, dann 1 weiter rechnen
-%	BRANCH: ReuseMoveOrder, MoveOrder wiederverwenden -> gemachten Zug aus Order löschen, Rest wiederverwenden
-%	Ersten Zug eintragen
-%	Depth -1 geht nicht, da Ratings nicht mehr Vergleichbar
-%	Alpha muss gelöscht werden (e8d9 immer noch drin)
-
+% calculate rating for current board
+% all ratings got its own weighting from facts
+% 1:	Count normal figures
+% 2:	Count generals
+% 3:	Count jailed figures at first position in stack
+% 4:	Count jailed figures at secound position in stack
+% 5:	Evaluate distance to other figures: best if one field between two figures --> only for generals
+% 6:	Count possible moves
+% 7:	Count possible jumps
 calculateRating(Rating, Color, MoveOrder) :-
 	enemy(Color, EnemyColor),   
 	aggregate_all(count, board(_,[black|_]), S),
@@ -46,7 +46,8 @@ calculateRating(Rating, Color, MoveOrder) :-
    
 calculateRating(Rating, _, _) :-
    Rating is 5000,!.
-   
+
+% Counts all generals where one field is between itself and another figure
 countDistance(Color) :-
 	retract(distanceCounter(_)),
 	asserta(distanceCounter(0)),
@@ -60,13 +61,14 @@ countDistance(Color) :-
 	fail.
 countDistance(_).
 
+% Checks if distance from general to next figure is one (one field between)
 checkBoardForDistance(GeneralColor, Field) :-
 	relatedColor(Color, GeneralColor),
 	enemy(Color, EnemyColor),
 	jump(Field,OverField,TargetField,GeneralColor),
 	board(OverField,[]),
 	board(TargetField,[EnemyColor|_]).
-	
+% Check for other direction	
 checkBoardForDistance(GeneralColor, Field) :-
 	relatedColor(Color, GeneralColor),
 	enemy(Color, EnemyColor),
@@ -75,17 +77,17 @@ checkBoardForDistance(GeneralColor, Field) :-
 	board(OverField,[]),
 	board(TargetField,[EnemyGeneralColor|_]).	
 
+% Count all possible moves
 countMovesFor(MoveOrder, M) :-
 	hasPossibleMoves(MoveOrder),
 	aggregate_all(count, possibleMove(MoveOrder,_,_), M).
-
 countMovesFor(_, M) :-
 	M is 0.
-	
+
+% Count all possible jumps	
 countJumpsFor(MoveOrder, J) :-
 	hasPossibleJumps(MoveOrder),
 	aggregate_all(count, possibleJump(MoveOrder,_,_,_), J).
-	
 countJumpsFor(_, J) :-
 	J is 0.
 	

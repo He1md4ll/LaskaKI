@@ -1,4 +1,4 @@
-﻿:- dynamic
+:- dynamic
         possibleMove/3.        
 :- dynamic
         possibleJump/4.        
@@ -9,33 +9,31 @@
 :- dynamic
         bestRating/2.
 :- dynamic
-                aiCalculationTime/1.
+        aiCalculationTime/1.
 :- dynamic
-                distanceCounter/1.      
+        distanceCounter/1.      
 :- dynamic
-                debugCounter/1.
+        debugCounter/1.
                 
 % Values for evaluation of rating                       
 :- dynamic
-                soldierValue/1. 
+        soldierValue/1. 
 :- dynamic
-                generalValue/1.
+        generalValue/1.
 :- dynamic
-                jailedSoldierValue/1.
+        jailedSoldierValue/1.
 :- dynamic
-                jailedJailedSoldierValue/1.
+        jailedJailedSoldierValue/1.
 :- dynamic
-                moveValue/1.
+        moveValue/1.
 :- dynamic
-                jumpValue/1.    
+        jumpValue/1.    
 :- dynamic
-                distanceValue/1.
-
+        distanceValue/1.
 :- dynamic
-                enemyDraft/1.
-
+        enemyDraft/1.
 :- dynamic
-                choosenMoveOrder/1.
+        choosenMoveOrder/1.
                 
 debugCounter(0).
 
@@ -68,14 +66,14 @@ enemy(black, white).
 
 degrade(green,white).
 degrade(red,black).
-degrade(X,X).     % degradiere nicht
+degrade(X,X).     % do not degrade
 
-% Felder, auf denen gewöhnliche Steine befördert werden
+% fields to promote normal figures to generals
 promote(a4,black,red).
 promote(a6,black,red).
 promote(g4,white,green).
 promote(g6,white,green).
-promote(_,X,X).    % befördere nicht
+promote(_,X,X).    % do not promote
 
 % Possible moves for white (from -- to)
 move(a4,b3).
@@ -115,6 +113,7 @@ move(f5,g4).
 move(f5,g6).
 move(f7,g6).
 
+% All possible moves for specific color to change direction
 move(Field,TargetField,white):-
      move(Field,TargetField).
 
@@ -161,6 +160,7 @@ jump(e4,f5,g6).
 jump(e6,f5,g4).
 jump(e8,f7,g6).
 
+% All possible jumps for specific color to change direction
 jump(Field, OverField, TargetField,white):-
      jump(Field, OverField,TargetField).
 

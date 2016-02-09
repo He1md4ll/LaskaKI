@@ -1,4 +1,4 @@
-﻿:- dynamic
+:- dynamic
         board/2.
         
 :- dynamic
@@ -165,5 +165,3 @@ fuellen(15,'        ').
 fuellen(16,'        ').
 fuellen(17,'        ').
 fuellen(18,'        ').
-
-

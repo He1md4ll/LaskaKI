@@ -5,6 +5,7 @@ displayPossibleDrafts :-
         write(X),write(Y),nl, fail.
 displayPossibleDrafts.
         
+% Apply move or jump for figure from Field to TargetField        
 applyTurn(Field, TargetField) :-
 		board(Field, [Color| _]),
         (
@@ -16,7 +17,7 @@ applyTurn(Field, TargetField) :-
 	        isMove(Color, Field,TargetField),
 	        doMove(Field,TargetField)
         ), !.
-        
+            
 isJump(Color, Field, OverField, TargetField) :-
         current_predicate(possibleJump/4), 
         jump(Field, OverField, TargetField, Color), !.
@@ -24,7 +25,8 @@ isJump(Color, Field, OverField, TargetField) :-
 isMove(Color, Field, TargetField) :-
         current_predicate(possibleMove/3),
         move(Field, TargetField, Color), !.
-        
+
+% Change board to apply jump and promote / degrade if necessary        
 doJump(X,M,O,J,Y) :-
         retract(board(X,[Kopf|S])),
         assertz(board(X,[])),
@@ -35,6 +37,8 @@ doJump(X,M,O,J,Y) :-
         degrade(O,G),
         append([Offz|S],[G],New),
         assertz(board(Y,New)).
+        
+% Change board to apply move and promote / degrade if necessary            
 doMove(X,Y) :-
         retract(board(X,[Kopf|S])),
         assertz(board(X,[])),
